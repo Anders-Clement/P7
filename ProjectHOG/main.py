@@ -2,22 +2,14 @@ import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 
-cap = cv.VideoCapture(0)
-
-# Check if the webcam is opened correctly
-if not cap.isOpened():
-    raise IOError("Cannot open webcam")
-
 kernel = np.array([[-1],
                    [0],
                    [1]])
 
 kernel2 = np.array([[-1, 0, 1]])
 
-while True:
-    ret, frame = cap.read()
-    # frame = cv.resize(frame, (320, 240))
-    # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+def calculate_Hog(frame):
     channels = cv.split(frame)
 
     mags = []
@@ -29,7 +21,7 @@ while True:
         mags.append(mag)
         angles.append(angle)
 
-    window_size = 20
+    window_size = 8
     SizeX = int((angles[0].shape[0]) / window_size)
     SizeY = int((angles[0].shape[1]) / window_size)
 
@@ -57,7 +49,7 @@ while True:
 
                     # 180 grader og ikke 360
                     bin = int(working_angle / 20.0)
-                    per_for_next_upper = ((bin+1)*20 - working_angle)/20
+                    per_for_next_upper = ((bin + 1) * 20 - working_angle) / 20
                     per_for_next_bottom = (working_angle - bin * 20) / 20
 
                     if bin == 8:
@@ -82,7 +74,7 @@ while True:
             for x_new in range(0, 2):
                 for y_new in range(0, 2):
                     new_hist = np.append(new_hist, np.array(histogram_list[x + x_new, y + y_new]))
-            #L2-Hys normalize then clip then normalize.
+            # L2-Hys normalize then clip then normalize.
             divide_value = np.sqrt(np.linalg.norm(new_hist) ** 2 + e)
             new_table = [max(min(x, 0.2), 0) for x in (new_hist / divide_value)]
             divide_value2 = np.sqrt(np.linalg.norm(new_table) ** 2 + e)
@@ -96,14 +88,24 @@ while True:
             center_x = x * window_size + int(window_size / 2)
             center_y = y * window_size + int(window_size / 2)
             for i, value in enumerate(histogram_list[x, y]):
-                end_x = int(center_x + value * np.cos((i * 20) * np.pi / 180))
-                end_y = int(center_y + value * np.sin((i * 20) * np.pi / 180))
+                end_x = int(center_x + value * np.sin((i * 20) * np.pi / 180))
+                end_y = int(center_y + value * np.cos((i * 20) * np.pi / 180))
                 cv.arrowedLine(frame, (center_x, center_y), (end_x, end_y), (0, 0, 255))
 
-    # SVM happens here
+    return feature_vector, frame
 
-    #cv.imshow("gx", gx)
-    #cv.imshow("gy", gy)
 
-    plt.imshow(frame)
-    plt.show()
+if __name__ == "__main__":
+    cap = cv.VideoCapture(0)
+    # Check if the webcam is opened correctly
+    if not cap.isOpened():
+        raise IOError("Cannot open webcam")
+
+    while True:
+        ret, frame = cap.read()
+
+        histrograms, frame = calculate_Hog(frame)
+
+        plt.figure()
+        plt.imshow(cv.cvtColor(frame, cv.COLOR_BGRA2RGB))
+        plt.show()
