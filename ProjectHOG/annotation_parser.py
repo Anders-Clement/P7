@@ -40,6 +40,14 @@ def parseDataset():
     neg_list = open(TRAIN_FOLDER + 'neg.lst', 'r')
 
     neg_image_filenames = neg_list.readlines()
+    neg_image_filenames[:] += INRIA_FOLDER
+
+    neg_image_paths = []
+    for neg in neg_image_filenames:
+        if neg == '':
+            continue
+        neg_image_paths.append(os.path.join(INRIA_FOLDER, neg[:-1]))
+
     neg_list.close()
 
 
@@ -76,7 +84,7 @@ def parseDataset():
             imgs.append(img)
     annotation_list.close()
     pos_list.close()
-    return imgs, neg_image_filenames
+    return imgs, neg_image_paths
 
 
 if __name__ == '__main__':    
