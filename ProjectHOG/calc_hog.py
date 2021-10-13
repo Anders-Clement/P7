@@ -85,10 +85,10 @@ def calculate_Hog(frame, draw_arrows = False):
             divide_value = np.sqrt(np.linalg.norm(new_hist) ** 2 + e)
             new_table = [min(x, 0.2) for x in (new_hist / divide_value)]
             divide_value2 = np.sqrt(np.linalg.norm(new_table) ** 2 + e)
-            row_x.append(new_table / divide_value2)
-        feature_vector.append(row_x)
+            feature_vector.append(new_table / divide_value2)
+        #feature_vector.append(row_x)
 
-    print(f'Number of HOG features = {len(feature_vector) * len(feature_vector[0]) * len(feature_vector[0][0])}')
+    #print(f'Number of HOG features = {len(feature_vector) * len(feature_vector[0]) * len(feature_vector[0][0])}')
 
     if (draw_arrows):
         for x in range(0, histogram_list.shape[0]):
@@ -100,7 +100,7 @@ def calculate_Hog(frame, draw_arrows = False):
                     end_y = int(center_y + value * np.cos((i * 20) * np.pi / 180) * 20)
                     cv.arrowedLine(frame, (center_x, center_y), (end_x, end_y), (0, 0, 255))
 
-    return feature_vector, frame
+    return np.reshape(feature_vector, len(feature_vector)*len(feature_vector[0])), frame
 
 
 if __name__ == "__main__":
