@@ -88,6 +88,8 @@ def get_pos_neg_samples_from_pickle():
 
 if __name__ == '__main__':
     positives, negatives = get_pos_neg_samples()
+    saveSamples(positives, negatives)
     print('calculated ', len(positives), ' positive samples, and ', len(negatives), ' negative samples')
+    print('dumped samples to pickle')
 
 
