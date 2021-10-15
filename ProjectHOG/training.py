@@ -11,9 +11,9 @@ import pickle
 
 
 if __name__ == '__main__':
-    # positives, negatives = get_pos_neg_samples()
-    # saveSamples(positives,negatives)
-    positives, negatives = get_pos_neg_samples_from_pickle()
+    positives, negatives = get_pos_neg_samples()
+    saveSamples(positives,negatives)
+    #positives, negatives = get_pos_neg_samples_from_pickle()
     data = np.array(positives + negatives, dtype='float32')
     labels = np.zeros(len(data),dtype='str')
     labels[:len(positives)] = 'human'
@@ -26,5 +26,5 @@ if __name__ == '__main__':
     print(metrics.classification_report(y_test, y_pred))
     print(metrics.confusion_matrix(y_pred, y_test))
     
-    pickle.dump(clf, open('model.pickle', 'wb'))
+    #pickle.dump(clf, open('model.pickle', 'wb'))
     
