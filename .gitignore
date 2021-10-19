@@ -1,2 +1,11 @@
 .idea/*
 ProjectHOG/INRIAPerson/*
+/catkin_ws/build
+/catkin_ws/build/*
+/catkin_ws/devel
+/catkin_ws/devel/*
+/catkin_ws/src/spot_ros
+/catkin_ws/src/spot_ros/*
+
+/catkin_ws/src/geometry2
+/catkin_ws/src/geometry2/*

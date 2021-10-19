@@ -10,8 +10,10 @@ project(concatenate_pointclouds)
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
+  pcl_ros
   pcl_conversions
   message_filters
+  tf2
 )
 
 ## System dependencies are found with CMake's conventions
