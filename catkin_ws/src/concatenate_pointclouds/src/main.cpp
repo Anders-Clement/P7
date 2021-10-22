@@ -38,7 +38,7 @@ void pointcloud_callback(const boost::shared_ptr<pc const>& frontLeft, const boo
     pc backTransformed;
     pc frontLeftTransformed;
     pc frontRightTransformed;
-    std::string target_frame = "gpe";
+    std::string target_frame = "base_link";
     pcl_ros::transformPointCloud(target_frame, *left, leftTransformed, *tfBuffer);
     pcl_ros::transformPointCloud(target_frame, *right, rightTransformed, *tfBuffer);
     pcl_ros::transformPointCloud(target_frame, *back, backTransformed, *tfBuffer);
