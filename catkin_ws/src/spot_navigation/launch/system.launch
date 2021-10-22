@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find spot_driver)/launch/driver.launch" />
+  <include file="$(find concatenate_pointclouds)/launch/concatenate_pointclouds.launch" />
+  <include file="$(find spot_viz)/launch/view_robot.launch" />
+</launch>
