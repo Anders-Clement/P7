@@ -6,25 +6,43 @@ import rospy
 
 def cb(data):
     ServiceToCall = ""
-    if data.buttons[4] and data.buttons[6] and data.buttons[2]:
+    #print("enter callback")
+    
+    if data.buttons[1] and data.buttons[4] and data.buttons[5]:
         ServiceToCall = "/spot/estop/gentle"
-    elif data.buttons[0]:
-        ServiceToCall= "/spot/sit"
-    elif data.buttons[2]:
-        ServiceToCall= "/spot/stand"
-    
+        print("emergency STOP")
+        rospy.wait_for_service(ServiceToCall)
+        
+        try:
+            service = rospy.ServiceProxy(ServiceToCall, Trigger)
+            resp = service()
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
 
-    
-    rospy.wait_for_service(ServicetoCall)
-    try:
-        service = rospy.ServiceProxy(ServiceToCall, Trigger)
-        resp = service()
-    except rospy.ServiceException as e:
-        print("Service call failed: %s"%e)
+    elif data.buttons[3]:
+        ServiceToCall= "/spot/sit"
+        print("Sit down")
+        rospy.wait_for_service(ServiceToCall)
+        try:
+            service = rospy.ServiceProxy(ServiceToCall, Trigger)
+            resp = service()
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+    elif data.buttons[1]:
+        ServiceToCall= "/spot/stand"
+        print("Standing up")
+        rospy.wait_for_service(ServiceToCall)
+        
+        try:
+            service = rospy.ServiceProxy(ServiceToCall, Trigger)
+            resp = service()
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+
 
 
 def listener():
-    rospy.Subscriber('teleop_sub', Joy, cb)
+    rospy.Subscriber('joy', Joy, cb)
     rospy.spin()
 
 
