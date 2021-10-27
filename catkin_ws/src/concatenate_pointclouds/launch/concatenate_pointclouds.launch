@@ -1,0 +1,72 @@
+<launch>
+ 
+  <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" />
+
+  <node pkg="nodelet" type="nodelet" name="frontleft"
+        args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+    <remap from="camera_info" to="/spot/depth/frontleft/camera_info"/>
+    <remap from="image_rect" to="/spot/depth/frontleft/image"/>
+    <remap from="points" to="/pointcloud/frontleft"/>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="frontright"
+        args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+    <remap from="camera_info" to="/spot/depth/frontright/camera_info"/>
+    <remap from="image_rect" to="/spot/depth/frontright/image"/>
+    <remap from="points" to="/pointcloud/frontright"/>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="left"
+        args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+    <remap from="camera_info" to="/spot/depth/left/camera_info"/>
+    <remap from="image_rect" to="/spot/depth/left/image"/>
+    <remap from="points" to="/pointcloud/left"/>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="right"
+        args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+    <remap from="camera_info" to="/spot/depth/right/camera_info"/>
+    <remap from="image_rect" to="/spot/depth/right/image"/>
+    <remap from="points" to="/pointcloud/right"/>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="back"
+        args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+    <remap from="camera_info" to="/spot/depth/back/camera_info"/>
+    <remap from="image_rect" to="/spot/depth/back/image"/>
+    <remap from="points" to="/pointcloud/back"/>
+  </node>
+
+  <node pkg="concatenate_pointclouds" type="concatenate_pointclouds_node" name="concatenate_pointclouds_node" output="screen">
+  </node>
+
+
+  <!-- push pointcloud_to_laserscan nodelet into sensor's nodelet manager-->
+  <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+
+        <remap from="cloud_in" to="/concatenated_pointcloud"/>
+        <remap from="scan" to="/scan"/>
+      <rosparam>
+          target_frame: gpe # Leave disabled to output scan in pointcloud frame
+          transform_tolerance: 0.01
+          min_height: 0.25
+          max_height: 0.75
+
+          angle_min: -3.14
+          angle_max: 3.14
+          angle_increment: 0.0087 # M_PI/360.0
+          scan_time: 0.3333
+          range_min: 0.45
+          range_max: 4.0
+          use_inf: true
+          inf_epsilon: 1.0
+
+          # Concurrency level, affects number of pointclouds queued for processing, thread number governed by nodelet manager
+          # 0 : Detect number of cores
+          # 1 : Single threaded
+          # 2->inf : Parallelism level
+          concurrency_level: 0
+      </rosparam>
+
+  </node>
+</launch>
