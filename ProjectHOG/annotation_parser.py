@@ -30,9 +30,9 @@ class Image():
         self.objects.append(object)
 
 
-def parseDataset():
+def parseDataset(folder='INRIAPerson/Train/'):
     INRIA_FOLDER = os.path.join(os.getcwd(), 'INRIAPerson')
-    TRAIN_FOLDER = os.path.join(os.getcwd(), 'INRIAPerson/Train/')
+    TRAIN_FOLDER = os.path.join(os.getcwd(), folder)
     ANNOTATION_FOLDER = os.path.join(TRAIN_FOLDER, 'annotations')
     POS_FOLDER = os.path.join(TRAIN_FOLDER, 'pos')
     annotation_list = open(TRAIN_FOLDER + 'annotations.lst', 'r')

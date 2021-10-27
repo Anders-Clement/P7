@@ -33,7 +33,7 @@ def getTrainedModel():
     """## Build the model"""
     model = keras.Sequential(
         [
-            keras.Input(shape=(1188)),
+            keras.Input(shape=(X_train.shape[1])),
             layers.Dense(10, activation="relu"),
             layers.Dense(10, activation="relu"),
             layers.Dropout(0.5),
@@ -45,11 +45,11 @@ def getTrainedModel():
 
     """## Train the model"""
     batch_size = 2000
-    epochs = 15
+    epochs = 25
 
     #opt = optimizers.gradient_descent_v2.SGD(momentum=0.1)
     opt = optimizers.adam_v2.Adam()
-    model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=[keras.metrics.Precision(), keras.metrics.Recall(), "accuracy"])
+    model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"]) #keras.metrics.Precision(), keras.metrics.Recall(),
 
     model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
 
@@ -82,25 +82,25 @@ if __name__ == '__main__':
         else:
             FP += 1
 
-    print(TP, FP, FN)
+    print('TP: ', TP, ', FP: ', FP, ', FN: ', FN)
     precision = TP/(TP + FP)
     recall = TP/(TP+FN)
-    print(precision, recall)
+    print('Precision: ', precision, ', recall: ', recall)
     
     # fit linear SVM, predict and print metrics
     X_train, X_test, y_train, y_test = getTrainingData()
-    clf = svm.LinearSVC()
+    clf = svm.LinearSVC(max_iter=10000, C=0.01)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
-    print("non linear SVM classification report:")
+    print("linear SVM classification report:")
     print(metrics.classification_report(y_test, y_pred))
-    print("non linear SVM confusion matrix:")    
+    print("linear SVM confusion matrix:")    
     print(metrics.confusion_matrix(y_pred, y_test))
     pickle.dump(clf, open('model_linear_svm.pickle', 'wb'))
 
     # fit non-linear SVM, predict and print metrics
     X_train, X_test, y_train, y_test = getTrainingData()
-    clf = svm.SVC()
+    clf = svm.SVC(probability=True)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     print("non linear SVM classification report:")
