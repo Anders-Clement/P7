@@ -37,7 +37,7 @@ def get_pos_neg_samples(saveToFile=False):
             if xMax > image.imageShape[0]:
                 xMax = image.imageShape[0]
             imgCrop = img[yMin : yMax, xMin : xMax]
-            imgCrop = cv.resize(imgCrop, (32,96))
+            imgCrop = cv.resize(imgCrop, (64,128))
             #print('aspect: ', (yMax-yMin)/(xMax-xMin))
             feature, frame = calculate_Hog(imgCrop)
             positive_samples.append(feature)
@@ -45,7 +45,7 @@ def get_pos_neg_samples(saveToFile=False):
             positive_samples.append(feature)
 
         #     plt.figure()
-        #     plt.imshow(cv.resize(imgCrop, (32,96)))
+        #     plt.imshow(cv.resize(imgCrop, (64,128)))
         #     plt.figure()
         #     plt.imshow(imgCrop)            
         # plt.show()
@@ -59,9 +59,9 @@ def get_pos_neg_samples(saveToFile=False):
             print('skipping negative sample!')
             continue
         for i in range(10):
-            x = np.random.randint(0, neg_img.shape[1] - 32)
-            y = np.random.randint(0, neg_img.shape[0] - 96)
-            imgCrop = neg_img[y : y + 96, x : x + 32]
+            x = np.random.randint(0, neg_img.shape[1] - 64)
+            y = np.random.randint(0, neg_img.shape[0] - 128)
+            imgCrop = neg_img[y : y + 128, x : x + 64]
             feature, frame = calculate_Hog(imgCrop)
             negative_samples.append(feature)
 
