@@ -135,7 +135,7 @@ if __name__ == '__main__':
     model = "linear_SVM"
 
     if model == "linear_SVM":
-        clf = pickle.load(open('model_linear_svm.pickle', 'rb'))
+        clf = pickle.load(open('new_model_linear_svm.pickle', 'rb'))
     elif model == 'nonlinear_SVM':
         clf = pickle.load(open('model_nonlinear_svm.pickle', 'rb'))
     elif model == "NN":
@@ -145,4 +145,4 @@ if __name__ == '__main__':
         exit(-1)
 
     test_window_demo(clf)
-    
+    sliding_window_demo(clf)
