@@ -40,8 +40,6 @@ def parseDataset(folder='INRIAPerson/Train/'):
     neg_list = open(TRAIN_FOLDER + 'neg.lst', 'r')
 
     neg_image_filenames = neg_list.readlines()
-    #neg_image_filenames[:] = INRIA_FOLDER + neg_image_filenames[:]
-
 
     neg_image_paths = []
     for neg in neg_image_filenames:
@@ -61,7 +59,6 @@ def parseDataset(folder='INRIAPerson/Train/'):
         if annotation_file is None or pos_img_path is None:
             print("threw up")
             exit(-1)
-        #print(annotation_file)
         with open(os.path.join(INRIA_FOLDER,annotation_file),'r', encoding='iso-8859-1') as annotation:
             lines = annotation.readlines()
             img_file = lines[2].split(':')[1][2:-2]
@@ -71,7 +68,6 @@ def parseDataset(folder='INRIAPerson/Train/'):
             y = int(sizes[1])
             c = int(sizes[2])
             imageShape = (x,y,c)
-            #input("")
 
             img = Image(os.path.join(INRIA_FOLDER, img_file), imageShape)
             objectNum = int((len(lines)-12) / 7)
@@ -80,7 +76,6 @@ def parseDataset(folder='INRIAPerson/Train/'):
                 start = 12 + i*7 
                 end = 12 + (i+1)*7
                 obj_lines = lines[start:end]
-                #print(obj_lines)
                 img.addObject(Object(obj_lines))
             imgs.append(img)
     annotation_list.close()

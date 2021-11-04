@@ -47,7 +47,6 @@ def sliding_window_demo(clf):
                     cropped_image=frame[(y*step_y):((y)*step_y + 128),
                                         (x*step_x):((x)*step_x + 64)]
             
-                    #ax[1].imshow(cropped_image)
                     feature, notUsedVariableBecauseItIsUseless = calculate_Hog(cropped_image)
                     hog = cv.HOGDescriptor()
                     if model == 'nonlinear_SVM':
