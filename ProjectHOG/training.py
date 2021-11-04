@@ -74,13 +74,14 @@ if __name__ == '__main__':
     FP = 0
     FN = 0
     for i, p in enumerate(pred):
-        if y_test[i,0]:
-            if p[0] > p[1]:
+        if y_test[i,1]:
+            if p[1] > p[0]:
                 TP += 1
             else:
                 FN += 1
         else:
-            FP += 1
+            if p[1] > p[0]:
+                FP += 1
 
     print('TP: ', TP, ', FP: ', FP, ', FN: ', FN)
     precision = TP/(TP + FP)
