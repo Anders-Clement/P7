@@ -14,6 +14,7 @@ from non_maximal_suppression import non_max_suppression
 
 
 def sliding_window_demo(clf):
+    print('\n ===== Test sliding window demo: apply model on test images from dataset ')
     imgs = []
     path = os.path.join('.', 'INRIAPerson/Test/pos/')
     for root, dirs, files in os.walk(path, topdown=False):
@@ -90,15 +91,18 @@ def sliding_window_demo(clf):
         for rect in rectsToDraw:
             cv.rectangle(frame_copy, (int(rect[0]),int(rect[1])), (int(rect[2]), int(rect[3])), (255,0,0))
         ax[0].imshow(frame_copy)
+        ax[0].set_title('before NMS')
         rectsToDraw = non_max_suppression(np.array(rectsToDraw), 0.5)
         for rect in rectsToDraw:
             cv.rectangle(frame_raw, (int(rect[0]),int(rect[1])), (int(rect[2]), int(rect[3])), (255,0,0))
         ax[1].imshow(frame_raw)
+        ax[1].set_title('with NMS')
         plt.draw()
         plt.waitforbuttonpress()
 
 
 def test_window_demo(clf):
+    print('\n ===== Test window demo: calculate precision recall on test dataset ===== ')
     print('extracting samples from images...')
     pos_samples, neg_samples = get_pos_neg_samples_from_pickle(fileNamePos='pos_test_samples.pickle', 
                                                                 fileNameNeg='neg_test_samples.pickle',
@@ -145,4 +149,5 @@ if __name__ == '__main__':
         exit(-1)
 
     test_window_demo(clf)
+    sliding_window_demo(clf)
     

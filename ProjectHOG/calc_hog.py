@@ -53,20 +53,24 @@ def cal_histogram(angles, mags):
 
 
 def calculate_Hog_OPENCV(frame, notUsed=None):
-    winSize = (64,128)
-    blockSize = (16,16)
-    blockStride = (8,8)
-    cellSize = (8,8)
-    nbins = 9
-    derivAperture = 1
-    winSigma = 4.
-    histogramNormType = 0
-    L2HysThreshold = 2.0000000000000001e-01
-    gammaCorrection = 0
-    nlevels = 64
-    hog = cv.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
-                            histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
-    #compute(img[, winStride[, padding[, locations]]]) -> descriptors
+    # full list of settings for HoG:
+    # winSize = (64,128)
+    # blockSize = (16,16)
+    # blockStride = (8,8)
+    # cellSize = (8,8)
+    # nbins = 9
+    # derivAperture = 1
+    # winSigma = 4.
+    # histogramNormType = 0
+    # L2HysThreshold = 2.0000000000000001e-01
+    # gammaCorrection = 0
+    # nlevels = 64
+    # signedGradient = False
+    # hog = cv.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
+    #                         histogramNormType,L2HysThreshold,gammaCorrection,nlevels,signedGradient)
+    
+    # but defaults perform better
+    hog = cv.HOGDescriptor()
     winStride = (8,8)
     padding = (8,8)
     locations = ((0,0),)
