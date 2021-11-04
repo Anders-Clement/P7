@@ -15,14 +15,11 @@ def cal_histogram(angles, mags):
     SizeX = int((angles[0].shape[0]) / window_size)
     SizeY = int((angles[0].shape[1]) / window_size)
 
-    #histogram_list = np.array([[[0.0 for _ in range(9)] for _ in range(SizeX)] for _ in range(SizeY)])
     histogram_list = np.zeros((SizeY, SizeX, 9))
     for x in range(0, SizeX):
         for y in range(0, SizeY):
             r = x * window_size
             c = y * window_size
-            # window = gray[r:r + window_size, c:c + window_size]
-            # cv.imshow("Image:" + str(r) + " : " + str(c), window)
 
             for i in range(0, window_size):
                 for j in range(0, window_size):
@@ -114,7 +111,6 @@ def calculate_Hog(frame, draw_arrows = False):
             feature_vector.append(new_table / divide_value2)
         #feature_vector.append(row_x)
 
-    #print(f'Number of HOG features = {len(feature_vector) * len(feature_vector[0]) * len(feature_vector[0][0])}')
 
     if (draw_arrows):
         for x in range(0, histogram_list.shape[0]):

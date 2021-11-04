@@ -48,7 +48,6 @@ def sliding_window_demo(clf):
                     cropped_image=frame[(y*step_y):((y)*step_y + 128),
                                         (x*step_x):((x)*step_x + 64)]
             
-                    #ax[1].imshow(cropped_image)
                     feature, notUsedVariableBecauseItIsUseless = calculate_Hog(cropped_image)
                     hog = cv.HOGDescriptor()
                     if model == 'nonlinear_SVM':
@@ -139,7 +138,7 @@ if __name__ == '__main__':
     model = "linear_SVM"
 
     if model == "linear_SVM":
-        clf = pickle.load(open('model_linear_svm.pickle', 'rb'))
+        clf = pickle.load(open('new_model_linear_svm.pickle', 'rb'))
     elif model == 'nonlinear_SVM':
         clf = pickle.load(open('model_nonlinear_svm.pickle', 'rb'))
     elif model == "NN":
@@ -150,4 +149,3 @@ if __name__ == '__main__':
 
     test_window_demo(clf)
     sliding_window_demo(clf)
-    
