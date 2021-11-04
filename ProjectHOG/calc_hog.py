@@ -17,14 +17,11 @@ def cal_histogram(angles, mags):
     SizeX = int((angles[0].shape[0]) / window_size)
     SizeY = int((angles[0].shape[1]) / window_size)
 
-    #histogram_list = np.array([[[0.0 for _ in range(9)] for _ in range(SizeX)] for _ in range(SizeY)])
     histogram_list = np.zeros((SizeY, SizeX, 9))
     for x in range(0, SizeX):
         for y in range(0, SizeY):
             r = x * window_size
             c = y * window_size
-            # window = gray[r:r + window_size, c:c + window_size]
-            # cv.imshow("Image:" + str(r) + " : " + str(c), window)
 
             
             # Finds the biggest magnitude from the three channels and uses this as the magnitude together with the connected angle.
@@ -58,20 +55,24 @@ def cal_histogram(angles, mags):
 
 
 def calculate_Hog_OPENCV(frame, notUsed=None):
-    winSize = (64,128)
-    blockSize = (16,16)
-    blockStride = (8,8)
-    cellSize = (8,8)
-    nbins = 9
-    derivAperture = 1
-    winSigma = 4.
-    histogramNormType = 0
-    L2HysThreshold = 2.0000000000000001e-01
-    gammaCorrection = 0
-    nlevels = 64
-    hog = cv.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
-                            histogramNormType,L2HysThreshold,gammaCorrection,nlevels)
-    #compute(img[, winStride[, padding[, locations]]]) -> descriptors
+    # full list of settings for HoG:
+    # winSize = (64,128)
+    # blockSize = (16,16)
+    # blockStride = (8,8)
+    # cellSize = (8,8)
+    # nbins = 9
+    # derivAperture = 1
+    # winSigma = 4.
+    # histogramNormType = 0
+    # L2HysThreshold = 2.0000000000000001e-01
+    # gammaCorrection = 0
+    # nlevels = 64
+    # signedGradient = False
+    # hog = cv.HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins,derivAperture,winSigma,
+    #                         histogramNormType,L2HysThreshold,gammaCorrection,nlevels,signedGradient)
+    
+    # but defaults perform better
+    hog = cv.HOGDescriptor()
     winStride = (8,8)
     padding = (8,8)
     locations = ((0,0),)

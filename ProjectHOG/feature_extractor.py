@@ -3,9 +3,6 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import pickle
 
-import cProfile
-from pstats import Stats
-
 from calc_hog import calculate_Hog_OPENCV as calculate_Hog
 from annotation_parser import parseDataset
 
@@ -15,19 +12,11 @@ def get_pos_neg_samples(saveToFile=False, dataFolder='INRIAPerson/Train/'):
     numObjects = 0
     for img in imgs:
         numObjects += len(img.objects)
-    #print('Total images: ', len(imgs), ' with a total of ', numObjects, ' objects')
     positive_samples = []
-    for i, image in enumerate(imgs):
-        #print('image ', i)
+    for image in imgs:
         img = cv.imread(image.fileName, 0)
-        #using matplotlib because opencv for some reason cannot show these images (it crashes)
-        #plt.imshow(img)
-        # l = len(image.objects)
-        # if l == 1:
-        #     l = 2
-        # fig, ax = plt.subplots(nrows=2, ncols=l)
-        for j, obj in enumerate(image.objects):
-            padding = 0
+
+        for obj in image.objects:
             yMin = int(obj.yMin - obj.yMin/6)
             if yMin < 0:
                 yMin = 0
@@ -42,16 +31,10 @@ def get_pos_neg_samples(saveToFile=False, dataFolder='INRIAPerson/Train/'):
                 xMax = image.imageShape[0]
             imgCrop = img[yMin : yMax, xMin : xMax]
             imgCrop = cv.resize(imgCrop, (64,128))
-            #print('aspect: ', (yMax-yMin)/(xMax-xMin))
-            feature, frame = calculate_Hog(imgCrop)
+            feature, _ = calculate_Hog(imgCrop)
             positive_samples.append(feature)
-            feature, frame = calculate_Hog(cv.flip(imgCrop, 1))
+            feature, _ = calculate_Hog(cv.flip(imgCrop, 1))
             positive_samples.append(feature)
-        #     ax[1,j].imshow(imgCrop)
-        # ax[0,0].imshow(img)
-        # plt.draw()
-        # plt.waitforbuttonpress()
-        # plt.close()
 
     
     negative_samples = []
@@ -59,13 +42,12 @@ def get_pos_neg_samples(saveToFile=False, dataFolder='INRIAPerson/Train/'):
     for n in neg_image_filenames:
         neg_img = cv.imread(n)
         if neg_img is None:
-            #print('skipping negative sample!')
             continue
         for i in range(10):
             x = np.random.randint(0, neg_img.shape[1] - 64)
             y = np.random.randint(0, neg_img.shape[0] - 128)
             imgCrop = neg_img[y : y + 128, x : x + 64]
-            feature, frame = calculate_Hog(imgCrop)
+            feature, _ = calculate_Hog(imgCrop)
             negative_samples.append(feature)
 
     if(saveToFile):

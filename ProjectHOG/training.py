@@ -4,13 +4,12 @@ from sklearn import metrics
 import numpy as np
 import pickle
 import cv2 as cv
-from numba import jit
 
 from tensorflow import keras
 from keras import optimizers
 from tensorflow.keras import layers
 
-from feature_extractor import get_pos_neg_samples, get_pos_neg_samples_from_pickle
+from feature_extractor import get_pos_neg_samples_from_pickle
 from annotation_parser import parseDataset
 from calc_hog import calculate_Hog_OPENCV as calculate_Hog
 
@@ -28,9 +27,6 @@ def getTrainingData():
 
 def getTrainedModel():
     X_train, X_test, y_train, y_test = getTrainingData()
-    # print("x_train shape:", X_train.shape)
-    # print(X_train.shape[0], "train samples")
-    # print(X_test.shape[0], "test samples")
 
     # # convert class vectors to binary class matrices
     y_train = keras.utils.to_categorical(y_train)
@@ -61,7 +57,6 @@ def getTrainedModel():
 
     return model
 
-#@jit()
 def finalClassifier(clfPicklePath, X_train, y_train):
 # Takes the fitted classifier and the data it used
 # Using a sliding window we check all negative images for false-positives with the classifier
@@ -128,70 +123,69 @@ def finalClassifier(clfPicklePath, X_train, y_train):
 
 
 if __name__ == '__main__':
-    method = 2
-    # get NN model
-    if method == 1:
-        model = getTrainedModel()
-        """## Evaluate the trained model"""
-        X_train, X_test, y_train, y_test = getTrainingData()
-        #reorder data to fit Keras
-        y_test = keras.utils.to_categorical(y_test)
-        score = model.evaluate(X_test, y_test, verbose=0)
-        print("Test loss:", score[0])
-        print("Test accuracy:", score[1])
-        pred = model.predict(X_test)
 
-        #calculate and print metrics for NN
-        TP = 0
-        FP = 0
-        FN = 0
-        for i, p in enumerate(pred):
-            if y_test[i,0]:
-                if p[0] > p[1]:
-                    TP += 1
-                else:
-                    FN += 1
+    # get NN model
+    model = getTrainedModel()
+    """## Evaluate the trained model"""
+    X_train, X_test, y_train, y_test = getTrainingData()
+    #reorder data to fit Keras
+    y_test = keras.utils.to_categorical(y_test)
+    score = model.evaluate(X_test, y_test, verbose=0)
+    print("Test loss:", score[0])
+    print("Test accuracy:", score[1])
+    pred = model.predict(X_test)
+
+    #calculate and print metrics for NN
+    TP = 0
+    FP = 0
+    FN = 0
+    for i, p in enumerate(pred):
+        if y_test[i,1]:
+            if p[1] > p[0]:
+                TP += 1
             else:
+                FN += 1
+        else:
+            if p[1] > p[0]:
                 FP += 1
 
-        print('TP: ', TP, ', FP: ', FP, ', FN: ', FN)
-        precision = TP/(TP + FP)
-        recall = TP/(TP+FN)
-        print('Precision: ', precision, ', recall: ', recall)
-    
-    # fit linear SVM, predict and print metrics
-    if method == 2:
-        X_train, X_test, y_train, y_test = getTrainingData()
-        clf = svm.LinearSVC(max_iter=10000, C=0.01)
-        clf.fit(X_train, y_train)
-        pickle.dump(clf, open('model_linear_svm.pickle', 'wb'))
+    print('TP: ', TP, ', FP: ', FP, ', FN: ', FN)
+    precision = TP/(TP + FP)
+    recall = TP/(TP+FN)
+    print('Precision: ', precision, ', recall: ', recall)
 
+# fit linear SVM, predict and print metrics
+    X_train, X_test, y_train, y_test = getTrainingData()
+    clf = svm.LinearSVC(max_iter=10000, C=0.01)
+    clf.fit(X_train, y_train)
+    pickle.dump(clf, open('model_linear_svm.pickle', 'wb'))
 
+    y_pred = clf.predict(X_test)
+    print("linear SVM classification report:")
+    print(metrics.classification_report(y_test, y_pred))
+    print("linear SVM confusion matrix:")    
+    print(metrics.confusion_matrix(y_pred, y_test))
+
+# fit linear SVM again but with hard examples and predict and print metics
+    hardExamples = True
+    if hardExamples == True:
         new_clf = finalClassifier('model_linear_svm.pickle' ,X_train, y_train)
         pickle.dump(new_clf, open('new_model_linear_svm.pickle', 'wb'))
-
-        y_pred = clf.predict(X_test)
-        print("linear SVM classification report:")
-        print(metrics.classification_report(y_test, y_pred))
-        print("linear SVM confusion matrix:")    
-        print(metrics.confusion_matrix(y_pred, y_test))
-
         new_y_pred = new_clf.predict(X_test)
         print("NEW linear SVM classification report:")
         print(metrics.classification_report(y_test, new_y_pred))
         print("NEW linear SVM confusion matrix:")
         print(metrics.confusion_matrix(new_y_pred, y_test))
 
-    # fit non-linear SVM, predict and print metrics
-    if method==3:
-        X_train, X_test, y_train, y_test = getTrainingData()
-        clf = svm.SVC(probability=True)
-        clf.fit(X_train, y_train)
-        y_pred = clf.predict(X_test)
-        print("non linear SVM classification report:")
-        print(metrics.classification_report(y_test, y_pred))
-        print("non linear SVM confusion matrix:")
-        print(metrics.confusion_matrix(y_pred, y_test))
-        pickle.dump(clf, open('model_nonlinear_svm.pickle', 'wb'))
+# fit non-linear SVM, predict and print metrics
+    X_train, X_test, y_train, y_test = getTrainingData()
+    clf = svm.SVC(probability=True)
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    print("non linear SVM classification report:")
+    print(metrics.classification_report(y_test, y_pred))
+    print("non linear SVM confusion matrix:")
+    print(metrics.confusion_matrix(y_pred, y_test))
+    pickle.dump(clf, open('model_nonlinear_svm.pickle', 'wb'))
 
 
