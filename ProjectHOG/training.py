@@ -9,7 +9,7 @@ from tensorflow import keras
 from keras import optimizers
 from tensorflow.keras import layers
 
-from feature_extractor import get_pos_neg_samples, get_pos_neg_samples_from_pickle
+from feature_extractor import get_pos_neg_samples_from_pickle
 from annotation_parser import parseDataset
 from calc_hog import calculate_Hog_OPENCV as calculate_Hog
 

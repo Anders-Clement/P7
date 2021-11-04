@@ -3,9 +3,6 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import pickle
 
-import cProfile
-from pstats import Stats
-
 from calc_hog import calculate_Hog_OPENCV as calculate_Hog
 from annotation_parser import parseDataset
 
@@ -16,11 +13,10 @@ def get_pos_neg_samples(saveToFile=False, dataFolder='INRIAPerson/Train/'):
     for img in imgs:
         numObjects += len(img.objects)
     positive_samples = []
-    for i, image in enumerate(imgs):
+    for image in imgs:
         img = cv.imread(image.fileName, 0)
 
-        for j, obj in enumerate(image.objects):
-            padding = 0
+        for obj in image.objects:
             yMin = int(obj.yMin - obj.yMin/6)
             if yMin < 0:
                 yMin = 0
@@ -35,9 +31,9 @@ def get_pos_neg_samples(saveToFile=False, dataFolder='INRIAPerson/Train/'):
                 xMax = image.imageShape[0]
             imgCrop = img[yMin : yMax, xMin : xMax]
             imgCrop = cv.resize(imgCrop, (64,128))
-            feature, frame = calculate_Hog(imgCrop)
+            feature, _ = calculate_Hog(imgCrop)
             positive_samples.append(feature)
-            feature, frame = calculate_Hog(cv.flip(imgCrop, 1))
+            feature, _ = calculate_Hog(cv.flip(imgCrop, 1))
             positive_samples.append(feature)
 
     
@@ -51,7 +47,7 @@ def get_pos_neg_samples(saveToFile=False, dataFolder='INRIAPerson/Train/'):
             x = np.random.randint(0, neg_img.shape[1] - 64)
             y = np.random.randint(0, neg_img.shape[0] - 128)
             imgCrop = neg_img[y : y + 128, x : x + 64]
-            feature, frame = calculate_Hog(imgCrop)
+            feature, _ = calculate_Hog(imgCrop)
             negative_samples.append(feature)
 
     if(saveToFile):

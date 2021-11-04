@@ -130,10 +130,6 @@ def test_window_demo(clf):
 
 
 if __name__ == '__main__':
-    cap = cv.VideoCapture(0)
-    # Check if the webcam is opened correctly
-    if not cap.isOpened():
-        raise IOError("Cannot open webcam")
 
     model = "linear_SVM"
 
