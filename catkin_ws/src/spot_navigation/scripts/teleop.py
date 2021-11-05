@@ -42,7 +42,7 @@ def cb(data):
 
 
 def listener():
-    rospy.Subscriber('joy', Joy, cb)
+    rospy.Subscriber('/bluetooth_teleop/joy', Joy, cb, queue_size=1)
     rospy.spin()
 
 
