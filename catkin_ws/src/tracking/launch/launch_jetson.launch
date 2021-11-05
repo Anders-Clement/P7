@@ -1,0 +1,10 @@
+<launch>
+        <machine
+                name="aaunano"
+                address="aaunano"
+                env-loader="/opt/ros/melodic/usbsetup.bash"
+                default="true"
+                user="aaunano"
+        />
+        <node machine="aaunano" pkg="jetson_inference" name="jetsonrunner" type="ros_inference_node.py" />
+</launch>
