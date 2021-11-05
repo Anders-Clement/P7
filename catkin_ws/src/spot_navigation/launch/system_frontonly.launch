@@ -1,0 +1,6 @@
+<launch>
+  <include file="$(find spot_driver)/launch/driver.launch" />
+  <include file="$(find concatenate_pointclouds)/launch/concatenate_pointclouds_frontonly.launch" />
+  <include file="$(find spot_viz)/launch/view_robot.launch" />
+  <node name="teleop_buttons" pkg="spot_navigation" type="teleop.py" output="screen" />
+</launch>
