@@ -21,4 +21,4 @@ world_state_attributes:
  - {ID: 1, class_label: 0, color: 0, shape: 0, name: 0}
 
 # Frame in which all markers are shown
-marker_frame: /map
+marker_frame: base_link

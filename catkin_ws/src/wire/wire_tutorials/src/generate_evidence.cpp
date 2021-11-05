@@ -9,7 +9,7 @@
 
 #include "wire_msgs/WorldEvidence.h"
 #include "wire_msgs/ObjectEvidence.h"
-#include "std_msgs/Float64MultiArray.h"
+#include "geometry_msgs/QuaternionStamped.h"
 #include "problib/conversions.h"
 
 
@@ -23,7 +23,8 @@ void addEvidence(wire_msgs::WorldEvidence& world_evidence, _Float64 x, _Float64 
 	posProp.attribute = "position";
 
 	// Set position (x,y,z), set the covariance matrix as 0.005*identity_matrix
-	pbl::PDFtoMsg(pbl::Gaussian(pbl::Vector3(x, y, z), pbl::Matrix3(0.0005, 0.0005, 0.0005)), posProp.pdf);
+	double cov = .025;
+	pbl::PDFtoMsg(pbl::Gaussian(pbl::Vector3(x, y, z), pbl::Matrix3(cov, cov, cov)), posProp.pdf);
 	obj_evidence.properties.push_back(posProp);
 	
 	
@@ -37,6 +38,7 @@ void addEvidence(wire_msgs::WorldEvidence& world_evidence, _Float64 x, _Float64 
     classPMF.setProbability("human", confidence);
     pbl::PDFtoMsg(classPMF, classProp.pdf);
     obj_evidence.properties.push_back(classProp);
+	world_evidence.object_evidence.push_back(obj_evidence);
 }
 
 
@@ -58,16 +60,16 @@ void addEvidence(wire_msgs::WorldEvidence& world_evidence, _Float64 x, _Float64 
 
 // }
 
-void evidenceCallback(const std_msgs::Float64MultiArray::ConstPtr msg) // CHANGE TO MESSAGE TYPE WHEN MADE
+void evidenceCallback(const geometry_msgs::QuaternionStamped::ConstPtr msg) // CHANGE TO MESSAGE TYPE WHEN MADE
 {
   	wire_msgs::WorldEvidence world_evidence;
 
 	// Set header
-	world_evidence.header.stamp = ros::Time::now();
-	world_evidence.header.frame_id = "/map";
+	world_evidence.header = msg->header;
 
 	// Add evidence
-	addEvidence(world_evidence,msg->data[0],msg->data[1],msg->data[2],msg->data[3]);
+	auto q = msg->quaternion;
+	addEvidence(world_evidence, q.x, q.y, q.z, q.w);
 
 	world_evidence_publisher_.publish(world_evidence);
 	

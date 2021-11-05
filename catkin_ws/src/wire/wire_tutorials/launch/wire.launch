@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find wire_viz)/launch/start.launch" />   
+    <include file="$(find wire_core)/launch/start.launch" />
+    <node pkg="wire_tutorials" type="generate_evidence" respawn="false" name="generate_evidence" output="screen"/> 
+</launch>

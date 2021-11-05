@@ -1,10 +1,9 @@
 <evidence>
 
     <object>
-        <discrete_property name="class_label" value="cup" probability="1.0" />
-        <discrete_property name="color" value="green" probability="0.9" />
-        <continuous_property name="position" value="1 2 0.8" cov="0.1" />
-        <continuous_property name="orientation" value="0 0 0 1" cov="0.01" />
+        <discrete_property name="class_label" value="human" probability="1" />
+        <continuous_property name="position" value="0 0 0" cov="0.025" />
+        
     </object>
 
     <object>
