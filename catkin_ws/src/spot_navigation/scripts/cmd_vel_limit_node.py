@@ -4,13 +4,21 @@ import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32
+import math 
 
 def raw_callback(data):
     global max_velocity
-    velocity = data.linear.x
+    
+    velocity = math.sqrt((data.linear.x)**2 + (data.linear.y)**2)
+    print(velocity)
    
     if velocity > max_velocity:
-        data.linear.x = max_velocity
+        scaling = velocity/max_velocity
+
+        data.linear.x = data.linear.x*(1/scaling)
+        data.linear.y = data.linear.y*(1/scaling)
+
+
         pub.publish(data)
     else:
         pub.publish(data)
