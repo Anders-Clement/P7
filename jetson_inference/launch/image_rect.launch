@@ -1,0 +1,24 @@
+
+  
+<!-- Launch in the camera namespace containing "image_raw" and "camera_info" -->
+<launch>
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" />
+
+    <arg name="respawn" default="false" />
+    <!-- TODO Arguments for debayer, interpolation methods? -->
+
+    <arg     if="$(arg respawn)" name="bond" value="" />
+    <arg unless="$(arg respawn)" name="bond" value="--no-bond" />>
+
+    
+    <group ns="spot">
+        <!-- Monochrome rectified image -->
+        <node pkg="nodelet" type="nodelet" name="rectify_mono"
+            args="load image_proc/rectify nodelet_manager $(arg bond)" />
+
+            <remap from="camera/image_raw" to="camera/right/image"/>
+            <remap from="points" to="/pointcloud/frontleft"/>
+
+    </group>
+
+</launch>
