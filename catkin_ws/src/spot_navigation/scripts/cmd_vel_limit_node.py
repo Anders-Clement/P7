@@ -17,6 +17,7 @@ def raw_callback(data):
 
         data.linear.x = data.linear.x*(1/scaling)
         data.linear.y = data.linear.y*(1/scaling)
+        data.linear.z = 0
 
 
         pub.publish(data)
@@ -31,7 +32,7 @@ pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 rospy.Subscriber("cmd_vel_raw", Twist, raw_callback, queue_size = 1)
 rospy.Subscriber("vel_limit", Float32, limit_callback, queue_size = 1)
 
-max_velocity = 1.6
+max_velocity = 2 # spot have max 1.6
 
 if __name__ == '__main__':
     
