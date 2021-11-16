@@ -9,7 +9,6 @@ project(spot_navigation)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   gmapping
-  navigation
   roscpp
 )
 
@@ -161,6 +160,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
    scripts/teleop.py
+   scripts/cmd_vel_limit_node.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
