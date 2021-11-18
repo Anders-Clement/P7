@@ -2,8 +2,6 @@
     <include file="$(find wire_viz)/launch/start.launch" />   
     <include file="$(find wire_core)/launch/start.launch" />
     <node pkg="wire_tutorials" type="generate_evidence" respawn="false" name="generate_evidence" output="screen"/> 
-    <node pkg="rosbag" type="record" name="rosbag_record"
-       args="record --topics /tf /tf_static /people_detections 
-            /robotMarker /world_state /world_evidence /visualization_markers/world_state 
-            /visualization_markers/world_evidence /spot/odometry /odom "/>
+    <node pkg="rosbag" type="record" name="rosbag_record" output="screen"
+       args="record /tf /tf_static /people_detections /robotMarker /world_state /world_evidence /visualization_markers/world_state /visualization_markers/world_evidence /spot/odometry /odom -o /home/rob7/newbags/"/>
 </launch>
