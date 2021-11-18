@@ -13,27 +13,29 @@ last_vel_change_time = None
 def cb(data):
     global vel_limit, last_vel_change_time, vel_limit_pub
     # vel_limit buttons
-    if data.buttons[0]:
+    if data.axes[5] > 0.1:
         if rospy.Time.now().to_sec() - last_vel_change_time > .2:
             last_vel_change_time = rospy.Time.now().to_sec()
             vel_limit = vel_limit + 0.25
             if vel_limit > 1.6:
                 vel_limit = 1.6
-            vel_limit_pub.publish(Float32(vel_limit))       
+            vel_limit_pub.publish(Float32(vel_limit))
+            print("Going up {}".format(vel_limit))  
 
-    if data.buttons[2]: 
+    if data.axes[5] < -0.1: 
         if rospy.Time.now().to_sec() - last_vel_change_time > 1:
             last_vel_change_time = rospy.Time.now().to_sec()
             vel_limit = vel_limit - 0.25
             if vel_limit < 0.25:
                 vel_limit = 0.25
             vel_limit_pub.publish(Float32(vel_limit))
+            print("Going down {}".format(vel_limit))
 
     
     ServiceToCall = ""
     #print("enter callback")
     
-    if data.buttons[1] and data.buttons[4] and data.buttons[5]:
+    if data.buttons[2] and data.buttons[4] and data.buttons[5]:
         ServiceToCall = "/spot/estop/gentle"
         print("emergency STOP")
         rospy.wait_for_service(ServiceToCall)
@@ -43,8 +45,8 @@ def cb(data):
             resp = service()
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
-
-    elif data.buttons[3]:
+    #Sit the robot down
+    elif data.buttons[0]:
         ServiceToCall= "/spot/sit"
         print("Sit down")
         rospy.wait_for_service(ServiceToCall)
@@ -53,7 +55,7 @@ def cb(data):
             resp = service()
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
-    elif data.buttons[1]:
+    elif data.buttons[2]:
         ServiceToCall= "/spot/stand"
         print("Standing up")
         rospy.wait_for_service(ServiceToCall)
