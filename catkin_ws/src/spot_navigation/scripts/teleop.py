@@ -2,9 +2,34 @@
 
 from sensor_msgs.msg import Joy
 from std_srvs.srv import Trigger, TriggerResponse
+from std_msgs.msg import Float32
 import rospy
 
+
+vel_limit = 1.6
+vel_limit_pub = None
+last_vel_change_time = None
+
 def cb(data):
+    global vel_limit, last_vel_change_time, vel_limit_pub
+    # vel_limit buttons
+    if data.buttons[0]:
+        if rospy.Time.now().to_sec() - last_vel_change_time > .2:
+            last_vel_change_time = rospy.Time.now().to_sec()
+            vel_limit = vel_limit + 0.25
+            if vel_limit > 1.6:
+                vel_limit = 1.6
+            vel_limit_pub.publish(Float32(vel_limit))       
+
+    if data.buttons[2]: 
+        if rospy.Time.now().to_sec() - last_vel_change_time > 1:
+            last_vel_change_time = rospy.Time.now().to_sec()
+            vel_limit = vel_limit - 0.25
+            if vel_limit < 0.25:
+                vel_limit = 0.25
+            vel_limit_pub.publish(Float32(vel_limit))
+
+    
     ServiceToCall = ""
     #print("enter callback")
     
@@ -42,7 +67,11 @@ def cb(data):
 
 
 def listener():
-    rospy.Subscriber('/bluetooth_teleop/joy', Joy, cb, queue_size=1)
+    rospy.Subscriber('/joy', Joy, cb, queue_size=1)
+    global vel_limit_pub
+    vel_limit_pub = rospy.Publisher('/vel_limit', Float32, queue_size=10)
+    global last_vel_change_time 
+    last_vel_change_time = rospy.Time.now().to_sec()
     rospy.spin()
 
 
