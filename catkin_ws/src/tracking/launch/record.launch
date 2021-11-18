@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="rosbag" type="record" name="rosbag_record" output="screen"
+       args="record /tf /tf_static /people_detections /robotMarker /spot/odometry /odom /vel_limit /cmd_vel /spot/cmd_vel   -o /home/rob7/newbags/responsetest/"/>
+</launch>
