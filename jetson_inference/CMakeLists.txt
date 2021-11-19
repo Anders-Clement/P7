@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(spot_navigation)
+project(jetson_inference)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,8 +8,13 @@ project(spot_navigation)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  gmapping
+  geometry_msgs
+  leg_detector
+  people_msgs
   roscpp
+  rospy
+  sensor_msgs
+  tf2
 )
 
 ## System dependencies are found with CMake's conventions
@@ -69,7 +74,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+#   geometry_msgs#   people_msgs#   sensor_msgs
 # )
 
 ################################################
@@ -102,9 +107,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES spot_navigation
-#  CATKIN_DEPENDS gmapping navigation roscpp
+  INCLUDE_DIRS include
+#  LIBRARIES jetson_inference
+  CATKIN_DEPENDS geometry_msgs leg_detector people_msgs roscpp rospy sensor_msgs tf2
 #  DEPENDS system_lib
 )
 
@@ -121,7 +126,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/spot_navigation.cpp
+#   src/${PROJECT_NAME}/jetson_inference.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -132,7 +137,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/spot_navigation_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/jetson_inference_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -158,11 +163,10 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-catkin_install_python(PROGRAMS
-   scripts/teleop.py
-   scripts/cmd_vel_limit_node.py
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# catkin_install_python(PROGRAMS
+#   scripts/my_python_script
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
@@ -197,10 +201,14 @@ catkin_install_python(PROGRAMS
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_spot_navigation.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_jetson_inference.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+catkin_install_python(PROGRAMS scripts/ros_inference_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

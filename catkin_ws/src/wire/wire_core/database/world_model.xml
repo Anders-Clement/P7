@@ -1,7 +1,7 @@
 <evidence>
 
     <object>
-        <discrete_property name="class_label" value="human" probability="1" />
+        <discrete_property name="class_label" value="human" probability="0.8" />
         <continuous_property name="position" value="0 0 0" cov="0.025" />
         
     </object>
