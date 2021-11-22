@@ -23,7 +23,7 @@ class kalmanFilter:
                             [0,1,0,0,0,0],
                             [0,0,1,0,0,0]])
         # measurement covariance
-        self.W = np.eye(3)*0.9 + np.ones((3,3))*0.1 
+        self.W = np.eye(3)*0.9 + np.ones((3,3))*0.1
         self.W = self.W * 10 # between 2.5 and 25 is ok, 1, 50 are beyond working
         # measurement noise
         self.lastTime = startTime
@@ -44,7 +44,7 @@ class kalmanFilter:
         
         # assume measurement is good, if within 2 meters of predicted kalman pos
         dist = np.abs(np.linalg.norm(self.x_pred[:2] - measurement[:2]))
-        if dist < 2:
+        if dist < 1.5:
             self.update(measurement, time)
             return True
         
@@ -61,12 +61,13 @@ class kalmanFilter:
 
 
 if __name__ == '__main__':
-    data = np.genfromtxt('data.csv', delimiter=',')
+    data = np.genfromtxt('/home/hax/foo.csv', delimiter=',')
     if not len(data) > 5:
         exit(-1) 
-    #data = data[100:]
+    #data = data[600:]
     KF = kalmanFilter(data[0][0])
-    KF.x = np.array([44, 53,0,0,0,0]) # data.csv
+    KF.x = np.array([85.5, -95 ,0,0,0,0]) # Katrine1.csv
+    #KF.x = np.array([12, -18,0,0,0,0]) # person1.csv
     # KF.x = np.array([-45, 118,0,0,0,0]) # data2.csv
     # KF.x = np.array([-44, -58,0,0,0,0]) # data3.csv
     # KF.x = np.array([-70, -114,0,0,0,0]) # data3.csv spot 2
@@ -82,6 +83,7 @@ if __name__ == '__main__':
     spot_v_log = []
     time_log_filter = []
     time_log_spot = []
+    time_log_angle = []
     colors = []
 
     fig, ax = plt.subplots(3)
@@ -104,6 +106,10 @@ if __name__ == '__main__':
             distance = np.linalg.norm(measurement[1:3] - measurement[4:6])
             distance_to_spot_log.append(distance)
             time_log_filter.append(measurement[0])
+            if measurement[7] < 0.0:
+                measurement[7] += np.pi*2
+
+            time_log_angle.append(measurement[7])
         # else:
         #     colors.append(0)
         
@@ -120,21 +126,27 @@ if __name__ == '__main__':
             #plt.scatter( KF.x[0] , KF.x[1] , s=KF.P[0,0] ,  facecolors='none', edgecolors='blue' ) 
             ax[0].clear()
             ax[1].clear()
+            ax[2].clear()
             ax[0].scatter(data[:i,1], data[:i,2], label='detections')
             #plt.scatter(np.array(y_log)[:,0], np.array(y_log)[:,1], c=colors)
             ax[0].scatter(np.array(x_log)[:,0], np.array(x_log)[:,1], c=colors, label='kalman filter')
             ax[0].scatter(KF.x_pred[0], KF.x_pred[1], label='predicted position')
+
+            #ax[0].set_xlim(KF.x_pred[0] - 2, KF.x_pred[0] + 2)
+            #ax[0].set_ylim(KF.x_pred[1] - 2, KF.x_pred[1] + 2)
             y_to_plot = []
             for i in range(len(x_log)):
                 y_to_plot.append(np.linalg.norm(np.array(x_log[i])[3:5]))
             ax[1].plot(time_log_filter, y_to_plot, label='kalman filter')
             ax[1].plot(time_log_spot, spot_v_log, label='spot')
+            ax[2].plot(time_log_filter, time_log_angle, label="angle")
             ax[0].set_xlabel('x-coordinate in meters')
             ax[0].set_ylabel('y-coordinate in meters')
             ax[0].legend()
             ax[1].set_xlabel('Time in seconds')
             ax[1].set_ylabel('Velocity in m/s')
             ax[1].legend()
+            ax[2].legend()
             plt.draw()
             plt.pause(0.0001)
 
@@ -170,7 +182,12 @@ if __name__ == '__main__':
     ax[1].set_xlabel('Time in seconds')
     ax[1].set_ylabel('Velocity in m/s')
     ax[1].legend()
-    ax[2].plot(time_log_filter, distance_to_spot_log)
+    ax[2].plot(time_log_filter, distance_to_spot_log, label="distance")
+    ax[2].plot(time_log_filter, time_log_angle, label="angle")
+    ax[2].set_xlabel('Time in seconds')
+    ax[2].set_ylabel('Distance (m), Angle(rad)')
+    ax[2].legend()
+    ax[2].sharex(ax[1])
 
 
     plt.show()
