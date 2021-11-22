@@ -23,7 +23,7 @@ class kalmanFilter:
                             [0,1,0,0,0,0],
                             [0,0,1,0,0,0]])
         # measurement covariance
-        self.W = np.eye(3)*0.9 + np.ones((3,3))*0.1 
+        self.W = np.eye(3)*0.9 + np.ones((3,3))*0.1
         self.W = self.W * 10 # between 2.5 and 25 is ok, 1, 50 are beyond working
         # measurement noise
         self.lastTime = startTime
@@ -44,7 +44,7 @@ class kalmanFilter:
         
         # assume measurement is good, if within 2 meters of predicted kalman pos
         dist = np.abs(np.linalg.norm(self.x_pred[:2] - measurement[:2]))
-        if dist < 2:
+        if dist < 1.5:
             self.update(measurement, time)
             return True
         
@@ -61,12 +61,12 @@ class kalmanFilter:
 
 
 if __name__ == '__main__':
-    data = np.genfromtxt('data.csv', delimiter=',')
+    data = np.genfromtxt('/home/hax/nov-19-2021-person1.csv', delimiter=',')
     if not len(data) > 5:
         exit(-1) 
-    #data = data[100:]
+    data = data[600:]
     KF = kalmanFilter(data[0][0])
-    KF.x = np.array([44, 53,0,0,0,0]) # data.csv
+    KF.x = np.array([12, -18,0,0,0,0]) # person1.csv
     # KF.x = np.array([-45, 118,0,0,0,0]) # data2.csv
     # KF.x = np.array([-44, -58,0,0,0,0]) # data3.csv
     # KF.x = np.array([-70, -114,0,0,0,0]) # data3.csv spot 2
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     # KF.x = np.array([-43, -79,0,0,0,0]) # data4.csv
     # KF.x = np.array([-60, -94,0,0,0,0]) # data4.csv
 
-    PLOT_CONTINOUSLY = False
+    PLOT_CONTINOUSLY = True
 
     x_log = []
     y_log = []
@@ -124,6 +124,9 @@ if __name__ == '__main__':
             #plt.scatter(np.array(y_log)[:,0], np.array(y_log)[:,1], c=colors)
             ax[0].scatter(np.array(x_log)[:,0], np.array(x_log)[:,1], c=colors, label='kalman filter')
             ax[0].scatter(KF.x_pred[0], KF.x_pred[1], label='predicted position')
+
+            ax[0].set_xlim(KF.x_pred[0] - 2, KF.x_pred[0] + 2)
+            ax[0].set_ylim(KF.x_pred[1] - 2, KF.x_pred[1] + 2)
             y_to_plot = []
             for i in range(len(x_log)):
                 y_to_plot.append(np.linalg.norm(np.array(x_log[i])[3:5]))
