@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
 class kalmanFilter:
     def __init__(self, startTime=0) -> None:
@@ -27,6 +28,7 @@ class kalmanFilter:
         self.W = self.W * 10 # between 2.5 and 25 is ok, 1, 50 are beyond working
         # measurement noise
         self.lastTime = startTime
+        self.distanceTreshold = 1.5
 
 
     def predict(self, time, measurement):
@@ -44,7 +46,7 @@ class kalmanFilter:
         
         # assume measurement is good, if within 2 meters of predicted kalman pos
         dist = np.abs(np.linalg.norm(self.x_pred[:2] - measurement[:2]))
-        if dist < 1.5:
+        if dist < self.distanceTreshold: #1.3:
             self.update(measurement, time)
             return True
         
@@ -61,12 +63,19 @@ class kalmanFilter:
 
 
 if __name__ == '__main__':
-    data = np.genfromtxt('/home/hax/nov-19-2021-person1.csv', delimiter=',')
+    data = np.genfromtxt('/home/katrine/Downloads/nov-19-2021-15-23-person6.csv', delimiter=',')
     if not len(data) > 5:
         exit(-1) 
-    data = data[600:]
+    start_value = 0
+    data = data[start_value:]
+
     KF = kalmanFilter(data[0][0])
-    KF.x = np.array([12, -18,0,0,0,0]) # person1.csv
+    
+   
+    
+    #KF.x = np.array([85, -86,0,0,0,0])
+    KF.x = np.array([48,-61,0,0,0,0]) # person6_del1.csv
+    # KF.x = np.array([12, -18,0,0,0,0]) # person1.csv
     # KF.x = np.array([-45, 118,0,0,0,0]) # data2.csv
     # KF.x = np.array([-44, -58,0,0,0,0]) # data3.csv
     # KF.x = np.array([-70, -114,0,0,0,0]) # data3.csv spot 2
@@ -74,7 +83,8 @@ if __name__ == '__main__':
     # KF.x = np.array([-43, -79,0,0,0,0]) # data4.csv
     # KF.x = np.array([-60, -94,0,0,0,0]) # data4.csv
 
-    PLOT_CONTINOUSLY = True
+
+    PLOT_CONTINOUSLY = False
 
     x_log = []
     y_log = []
@@ -87,13 +97,24 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(3)
     for i, measurement in enumerate(data):
         print(i, KF.x, measurement[0])
-
+       
         if i > 0:
             dt = data[i,0] - data[i-1,0]
             if dt > 0:
                 dpos = np.linalg.norm(data[i,4:7] - data[i-1,4:7])
                 spot_v_log.append(dpos/dt)
                 time_log_spot.append(data[i,0])
+
+            #  Person 4 
+
+            # if i == 900-start_value:
+            #     KF.x = np.array([5.3, -107,0,0,0,0])
+            #     KF.distanceTreshold = 2
+            #     KF.P = np.ones((6,6),np.float32)*0.1 + np.eye(6)*0.9
+            # if i == 3417-start_value:
+            #     KF.x = np.array([-191, -198,0,0,0,0])
+            #     KF.distanceTreshold = 1.5
+            #     KF.P = np.ones((6,6),np.float32)*0.1 + np.eye(6)*0.9
 
         y = np.array(measurement[1:4])
         y[2] = 0
@@ -125,8 +146,8 @@ if __name__ == '__main__':
             ax[0].scatter(np.array(x_log)[:,0], np.array(x_log)[:,1], c=colors, label='kalman filter')
             ax[0].scatter(KF.x_pred[0], KF.x_pred[1], label='predicted position')
 
-            ax[0].set_xlim(KF.x_pred[0] - 2, KF.x_pred[0] + 2)
-            ax[0].set_ylim(KF.x_pred[1] - 2, KF.x_pred[1] + 2)
+            #ax[0].set_xlim(KF.x_pred[0] - 2, KF.x_pred[0] + 2)
+            #ax[0].set_ylim(KF.x_pred[1] - 2, KF.x_pred[1] + 2)
             y_to_plot = []
             for i in range(len(x_log)):
                 y_to_plot.append(np.linalg.norm(np.array(x_log[i])[3:5]))
@@ -174,6 +195,7 @@ if __name__ == '__main__':
     ax[1].set_ylabel('Velocity in m/s')
     ax[1].legend()
     ax[2].plot(time_log_filter, distance_to_spot_log)
+    ax[2].set_ylabel('distance in m')
 
 
     plt.show()
