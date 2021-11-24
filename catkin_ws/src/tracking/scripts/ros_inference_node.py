@@ -330,7 +330,7 @@ def main():
 					# transform to targetFrame, such that we can project to the x-y plane
 					targetFrame = 'base_link'
 					try:
-						trans = tfBuffer.lookup_transform(targetFrame, img_msg.header.frame_id, rospy.Time())
+						trans = tfBuffer.lookup_transform(targetFrame, img_msg.header.frame_id, img_msg.header.stamp)
 						trans = msg_to_se3(trans)
 						point_transformed = np.matmul(trans, np.array([detection_pos2[0], detection_pos2[1], detection_pos2[2], 1]).T )
 					except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
