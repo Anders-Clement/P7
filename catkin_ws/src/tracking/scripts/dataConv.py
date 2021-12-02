@@ -19,7 +19,7 @@ import copy
 
 class ourFilter():
 	def __init__(self):
-		rospy.init_node('theassnode', anonymous=True)
+		rospy.init_node('dataConv', anonymous=True)
 		self.tfBuffer = tf2_ros.Buffer()
 		self.data = []
 		self.start_time = None
