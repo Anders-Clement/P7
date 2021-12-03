@@ -80,7 +80,11 @@ def sim_human_follow_spot(Ts, simTime, x, Kpd_person=.5, Kpv_person=.5, Kp_vel_s
                      [0,0,1,Ts],
                      [0,0,0,1]])
         if spotDeltaXdot == 'simple':
-            deltaXdot = spot_acc_lim*Ts
+            if includeStop and time > simTime / 2: 
+                deltaXdot = -spot_acc_lim*Ts
+            else:
+                deltaXdot = spot_acc_lim*Ts
+
         elif spotDeltaXdot == 'proportional':
             deltaXdot = (targetSpotVel[i] - x[1])*2*Ts
         elif spotDeltaXdot == 'gradient':
@@ -103,6 +107,8 @@ def sim_human_follow_spot(Ts, simTime, x, Kpd_person=.5, Kpv_person=.5, Kp_vel_s
         # limit Spot's velocity to max_spot_vel which is Spot's max velocity
         if x[1] + deltaXdot > max_spot_vel: 
             deltaXdot = max_spot_vel - x[1]
+        if x[1] + deltaXdot < 0:
+            deltaXdot = -x[1]
 
         d = float(x[0] - x[2])
         if useSpotForIdealDist:
@@ -278,7 +284,21 @@ def simSimpleProportionalControl(Ts, simTime, x, human_stop_time, Kp, instant_st
 
 def plot_xlog_time_log(data, show=True, Title='Empty'):
     x_log, time_log, ideal_dist, gradient_log = data
-    fig, ax = plt.subplots(4)
+    if len(gradient_log) > 1:
+        fig, ax = plt.subplots(4)
+        ax[3].plot(time_log[:len(gradient_log)], gradient_log[:,0], label='gradient vel')
+        ax[3].plot(time_log[:len(gradient_log)], gradient_log[:,1], label='gradient dist')
+        ax[3].plot(time_log[:len(gradient_log)], gradient_log[:,2], label='deltaXdot')
+        ax[3].set_xlabel('time [s]')
+        ax[3].set_ylabel('magnitude')
+        ax[3].grid()
+        ax[3].legend()    
+        ax[3].sharex(ax[2])
+
+
+
+    else:
+        fig, ax = plt.subplots(3)
     fig.suptitle(Title)
     distance = x_log[:,0] - x_log[:,2]
     ax[0].plot(time_log, x_log[:,0], label='spot_pos')
@@ -287,9 +307,7 @@ def plot_xlog_time_log(data, show=True, Title='Empty'):
     ax[2].plot(time_log, x_log[:,3], label='person_vel')
     ax[1].plot(time_log, distance, label='distance spot<=>person')
     ax[1].plot(time_log, ideal_dist, label='ideal distance')
-    ax[3].plot(time_log[:len(gradient_log)], gradient_log[:,0], label='gradient vel')
-    ax[3].plot(time_log[:len(gradient_log)], gradient_log[:,1], label='gradient dist')
-    ax[3].plot(time_log[:len(gradient_log)], gradient_log[:,2], label='deltaXdot')
+
     #ax[1].set_ylim((0,3.5))
     #ax[2].set_ylim((0,2))
     ax[1].set_xlabel('time [s]')
@@ -298,19 +316,15 @@ def plot_xlog_time_log(data, show=True, Title='Empty'):
     ax[2].set_xlabel('time [s]')
     ax[0].set_ylabel('position [m]')
     ax[2].set_ylabel('velocity [m/s]')
-    ax[3].set_xlabel('time [s]')
-    ax[3].set_ylabel('magnitude')
+
     ax[0].grid()
     ax[2].grid()
     ax[1].grid()
-    ax[3].grid()
     ax[1].sharex(ax[0])
     ax[2].sharex(ax[1])
-    ax[3].sharex(ax[2])
     ax[0].legend()
     ax[2].legend()
     ax[1].legend()
-    ax[3].legend()
     if show:
         plt.show()
 
@@ -327,24 +341,26 @@ def main():
     Kp_dist = (2/5)
     Kp_vel = (1 - Kp_dist) * Kp
     Kp_dist *= Kp
-    print(Kp_vel, Kp_dist)
-    #data = sim_human_follow_spot(Ts,20,x, Kpd_person=.5, Kpv_person=.5, Kp_vel_spot=Kp_vel, Kp_dist_spot=Kp_dist)
-    #plot_xlog_time_log(x_log, ideal_dist, time_log, show=False, Title='Kp_vel: ' + str(Kp_vel)+ ', Kp_dist: ' + str(Kp_dist))
+    #print(Kp_vel, Kp_dist)
+    #data = sim_human_follow_spot(Ts,30,x, Kpd_person=.5, Kpv_person=.5, Kp_vel_spot=Kp_vel, Kp_dist_spot=Kp_dist, spotDeltaXdot='proportional', includeStop=True)
+    #plot_xlog_time_log(data, show=False, Title='Person following Spot')
 
     end = time.time()
     print('calculation time: ', end-start)
-    # data = sim_human_follow_spot(Ts,20,x, Kpd_person=.5, Kpv_person=.5, spotDeltaXdot='gradient')
-    # plot_xlog_time_log(data, show=False, Title='simple human')
+    Kp_vel = 1
+    Kp_dist = 3
+    data = sim_human_follow_spot(Ts,30,x, spotDeltaXdot='gradient', Kp_dist_spot = Kp_dist, Kp_vel_spot=Kp_vel)
+    plot_xlog_time_log(data, show=False, Title='simple human')
 
-    data = sim_spot_with_gradient_human_stops(Ts, 60, x, 25, Kp_dist_spot=30, Kp_vel_spot=5, instant_stop=False)
+    data = sim_spot_with_gradient_human_stops(Ts, 60, x, 30, Kp_dist_spot=Kp_dist, Kp_vel_spot=Kp_vel, instant_stop=False)
     plot_xlog_time_log(data, show=False, Title='advanced human')
 
     # data = simSimpleProportionalControl(Ts, 50, x, 15, .1, Kp_dist_spot=30, Kp_vel_spot=30, instant_stop=False)
     # plot_xlog_time_log(data, show=False, Title='proportional control .1')
     # data = simSimpleProportionalControl(Ts, 50, x, 15, .3, Kp_dist_spot=30, Kp_vel_spot=30, instant_stop=False)
     # plot_xlog_time_log(data, show=False, Title='proportional control .3')
-    data = simSimpleProportionalControl(Ts, 60, x, 25, 2, Kp_dist_spot=30, Kp_vel_spot=30, instant_stop=False)
-    plot_xlog_time_log(data, show=False, Title='proportional control 2')
+    #data = simSimpleProportionalControl(Ts, 60, x, 25, 2, Kp_dist_spot=30, Kp_vel_spot=30, instant_stop=False)
+    #plot_xlog_time_log(data, show=False, Title='proportional control 2')
     plt.show()
 
 
