@@ -57,7 +57,7 @@ class kalmanFilterNode:
                 self.distance_to_robot_pub.publish(distance_to_robot_msg)
                 print('good detection, KF.x: ', self.kalmanFilter.x, detectionPos, spotPos, dist)
                 velocity_of_human = math.sqrt(self.kalmanFilter.x[3]**2+self.kalmanFilter.x[4]**2)
-                self.human_velocity_pub(velocity_of_human)
+                self.human_velocity_pub.publish(velocity_of_human)
 
 
             self.pub_KF_x_pos() 
@@ -79,7 +79,7 @@ class kalmanFilterNode:
         marker.action = 0
         marker.pose.position.x = xyPos[0]
         marker.pose.position.y = xyPos[1]
-        marker.pose.position.z = self.trans.transform.translation.z
+        marker.pose.position.z = -self.trans.transform.translation.z
         marker.pose.orientation.x = 0
         marker.pose.orientation.y = 0
         marker.pose.orientation.z = 0
@@ -106,7 +106,7 @@ class kalmanFilterNode:
     def pub_KF_pred_x_pos(self):
         if self.kalmanFilter is not None:
             pred_pos = self.kalmanFilter.x_pred[:2]
-            marker = self.get_marker([0,255,0], pred_pos,1)
+            marker = self.get_marker([0,0,255], pred_pos,1)
             self.marker_pub.publish(marker)    
 
 
