@@ -39,6 +39,8 @@ def PController(pos, vel):
 
     velChange = 1.0/update_freq*((idealPos-pos)*Kp1+(vel-spot_velocity )*Kp2 + PosConstGain)
     vel_limit = spot_velocity + velChange
+    if(vel_limit > 1.4):
+        vel_limit = 1.4
     #posChange = (idealPos-pos)*PosPGain
     #vel_limit = spot_velocity + posChange
     return vel_limit
@@ -48,6 +50,9 @@ def CostFuncController(pos,vel):
     gradient = [ 0.269531186697266*vel - 0.0952452172863454*pos - 0.154084299810647 , -0.0952452172863454*vel + 0.130468813302734*pos - 0.172481857335664 ]
     velChange =  1.0/update_freq*(gradient[0]*CostVelGain + gradient[1]*CostPosGain)
     vel_limit = spot_velocity + velChange 
+    
+    if(vel_limit > 1.4):
+        vel_limit = 1.4
     return vel_limit
 
 def Human_vel_Callback(human_vel_msg):

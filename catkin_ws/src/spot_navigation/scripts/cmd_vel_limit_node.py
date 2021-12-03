@@ -10,11 +10,18 @@ def raw_callback(data):
     global max_velocity, pub, latest_msg
     
     velocity = math.sqrt((data.linear.x)**2 + (data.linear.y)**2)
-    print(velocity)
+    #print(velocity)
 
     latest_msg = data
+
+    if max_velocity < 0.01:
+        data.linear.x = 0
+        data.linear.y = 0
+        data.linear.z = 0
+
+        pub.publish(data)
    
-    if velocity > max_velocity:
+    elif velocity > max_velocity:
         scaling = velocity/max_velocity
 
         data.linear.x = data.linear.x*(1/scaling)
