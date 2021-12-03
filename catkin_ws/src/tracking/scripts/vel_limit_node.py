@@ -76,11 +76,11 @@ def do_stuff():
     controller_type = rospy.get_param('controller', 'cost')
     gui_type = rospy.get_param('controller', 'plot')
 
-    ax = None
+    fig, ax = None, None
     last_list = [0 for _ in range(50)]
     x_axis = [x/update_freq for x in range(50)]
     if gui_type == "plot":
-        ax = plt.subplots(1)
+        fig, ax = plt.subplots(1)
 
 
     if controller_type != 'cost' and controller_type != 'pid':
@@ -98,10 +98,12 @@ def do_stuff():
         pub.publish(vel_limit)
 
         if ax != None:
+            plt.cla()
             last_list.pop(0)
             last_list.insert(-1, vel_limit)
             ax.plot(x_axis, last_list)
-
+            plt.draw()
+            plt.pause(0.01)
         rate.sleep()
 
 

@@ -6,7 +6,7 @@ import tf2_ros
 import numpy as np
 import math
 
-from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 from std_msgs.msg import Float32
 from geometry_msgs.msg import QuaternionStamped
 from visualization_msgs.msg import Marker
@@ -24,16 +24,16 @@ class kalmanFilterNode:
         self.human_velocity_pub = rospy.Publisher('/human_velocity', Float32, queue_size=10)
         self.detection_sub = rospy.Subscriber('/people_detections', QuaternionStamped, self.detection_callback, queue_size=10)
         self.marker_pub = rospy.Publisher('kalman_filter_visualization_markers', Marker, queue_size=10)
-        self.spot_vel_sub = rospy.Subscriber('/spot/cmd_vel', Twist)
+        self.spot_vel_sub = rospy.Subscriber('/spot/cmd_vel', Odometry, self.Spot_vel_callback, queue_size=10)
         self.kalmanFilter = None
         self.lastGoodDetectionTime = rospy.Time.now().to_sec()
         self.TIMEOUTLIMIT = 10
+        self.spot_velocity = 0
         
-    def Spot_vel_callback(msg):
-        global spot_velocity
-        spot_velocity = np.linalg.norm([msg.twist.twist.linear.x, msg.twist.twist.linear.y])
+    def Spot_vel_callback(self, msg):
+        self.spot_velocity = np.linalg.norm(msg.twist.twist.linear.x, msg.twist.twist.linear.y)
     
-    def getIdealDistance(velocity):
+    def getIdealDistance(self, velocity):
         #di = 0.593*velocity**2 - 0.405*velocity + 1.78
         a = 0.73
         b = 1.32
@@ -48,8 +48,8 @@ class kalmanFilterNode:
             # initialize kalman filter if not done yet, of if KF is lost
             if self.kalmanFilter is None or rospy.Time.now().to_sec() - self.lastGoodDetectionTime > self.TIMEOUTLIMIT:
                 # initialize the filter at ideal distance behind spot given spot volocity
-                spot_velocity_now = spot_velocity
-                IdealDis = self.getIdealDistance(spot_velocity_now)
+                spot_velocity_now = self.spot_velocity
+                IdealDis = -self.getIdealDistance(spot_velocity_now)
 
                 startPos = np.array([IdealDis,0,0,1])
                 transformedPos = np.matmul(transformation_matrix_body_odom, startPos)
