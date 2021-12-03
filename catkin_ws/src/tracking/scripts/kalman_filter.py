@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+import pickle
 
 class kalmanFilter:
     def __init__(self, startTime=0) -> None:
@@ -63,19 +64,31 @@ class kalmanFilter:
 
 
 if __name__ == '__main__':
-    data = np.genfromtxt('/home/katrine/Downloads/nov-19-2021-15-23-person6.csv', delimiter=',')
+    OUTPUTFILENAME = 'person5.pickle'
+    data = np.genfromtxt('nov-19-2021-14-57-person5.csv', delimiter=',')
     if not len(data) > 5:
         exit(-1) 
     start_value = 0
     data = data[start_value:]
 
     KF = kalmanFilter(data[0][0])
-    
+    KF.distanceTreshold = 50
+    KF.x = np.array([73, -85,0,0,0,0]) 
    
-    
-    #KF.x = np.array([85, -86,0,0,0,0])
-    KF.x = np.array([48,-61,0,0,0,0]) # person6_del1.csv
-    # KF.x = np.array([12, -18,0,0,0,0]) # person1.csv
+
+    # person 5
+    start_value = 175 
+    data = data[start_value:] 
+    KF = kalmanFilter(data[0][0]) 
+    KF.x = np.array([86, -81, 0,0,0,0]) 
+    KF.distanceTreshold = 1 
+
+
+    # KF.x = np.array([-81, 104,0,0,0,0]) # person6
+    # KF.distanceTreshold = 2 # person6
+    # KF.x = np.array([85, -86,0,0,0,0]) # person4.csv
+    # KF.x = np.array([48,-61,0,0,0,0]) # person6_del1.csv
+    # KF.x = np.array([12, -18,0,0,0,0]) # person1.csv data = data[600:]
     # KF.x = np.array([-45, 118,0,0,0,0]) # data2.csv
     # KF.x = np.array([-44, -58,0,0,0,0]) # data3.csv
     # KF.x = np.array([-70, -114,0,0,0,0]) # data3.csv spot 2
@@ -98,7 +111,7 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(3)
     for i, measurement in enumerate(data):
         print(i, KF.x, measurement[0])
-       
+
         if i > 0:
             dt = data[i,0] - data[i-1,0]
             if dt > 0:
@@ -128,7 +141,53 @@ if __name__ == '__main__':
             #     KF.x = np.array([-191, -198,0,0,0,0])
             #     KF.distanceTreshold = 1.5
             #     KF.P = np.ones((6,6),np.float32)*0.1 + np.eye(6)*0.9
+            if i == 60: 
 
+                KF.distanceTreshold = 3 
+
+            if i == 150: 
+
+              KF.distanceTreshold = 1 
+
+            
+            
+
+            if i == 300: 
+
+                KF.distanceTreshold = 3 
+
+            
+            
+
+            if i == 400: 
+
+                KF.distanceTreshold = 1.5 
+
+            
+            
+
+            if i == 2560: 
+
+                KF.P = np.ones((6,6),np.float32)*0.1 + np.eye(6)*0.9  
+
+                KF.x = np.array([-183,-220,0,0,0,0]) 
+
+
+
+
+            if i == 3400: 
+
+                KF.x = np.array([-114, -160, 0,0,0,0]) 
+
+                KF.P = np.ones((6,6),np.float32)*0.1 + np.eye(6)*0.9  
+
+                KF.distanceTreshold = 1 
+
+            if i < 100: 
+
+                if measurement[2] < -82 or measurement[2] > -80: 
+
+                    continue 
         y = np.array(measurement[1:4])
         y[2] = 0
         if KF.predict(measurement[0], y):
@@ -149,7 +208,7 @@ if __name__ == '__main__':
 
         if len(x_log) == 0:
             continue
-        if PLOT_CONTINOUSLY:
+        if PLOT_CONTINOUSLY and measurement[0] > 220:
             # plt.clf()
             # plt.scatter(np.array(y_log)[:,0], np.array(y_log)[:,1], c=colors)
             # plt.scatter(np.array(x_log)[:,0], np.array(x_log)[:,1], c=colors)
@@ -159,10 +218,12 @@ if __name__ == '__main__':
             ax[0].clear()
             ax[1].clear()
             ax[2].clear()
-            ax[0].scatter(data[:i,1], data[:i,2], label='detections')
+            ax[0].scatter(data[i-20:i,1], data[i-20:i,2], label='detections')
             #plt.scatter(np.array(y_log)[:,0], np.array(y_log)[:,1], c=colors)
-            ax[0].scatter(np.array(x_log)[:,0], np.array(x_log)[:,1], c=colors, label='kalman filter')
+            #ax[0].scatter(np.array(x_log)[:,0], np.array(x_log)[:,1], c=colors, label='kalman filter')
             ax[0].scatter(KF.x_pred[0], KF.x_pred[1], label='predicted position')
+            ax[0].set_xlim((-100, -80))
+            ax[0].set_ylim((-145, -135))
 
             #ax[0].set_xlim(KF.x_pred[0] - 2, KF.x_pred[0] + 2)
             #ax[0].set_ylim(KF.x_pred[1] - 2, KF.x_pred[1] + 2)
@@ -183,19 +244,20 @@ if __name__ == '__main__':
             plt.pause(0.0001)
 
 
-    data_to_save = []
-    # extract data
-    for i in range(len(x_log)):
-        timestamp = time_log_filter[i]
-        kalman_velocity = np.linalg.norm(np.array(x_log[i])[3:5])
-        spot_velocity = 0
-        for j in range(len(time_log_spot)):
-            if time_log_spot[j] == timestamp:
-                spot_velocity = spot_v_log[j]
-        data_to_save.append([timestamp, kalman_velocity, spot_velocity])
+    # data_to_save = []
+    # # extract data
+    # for i in range(len(x_log)):
+    #     timestamp = time_log_filter[i]
+    #     kalman_velocity = np.linalg.norm(np.array(x_log[i])[3:5])
+    #     spot_velocity = 0
+    #     for j in range(len(time_log_spot)):
+    #         if time_log_spot[j] == timestamp:
+    #             spot_velocity = spot_v_log[j]
+    #     data_to_save.append([timestamp, kalman_velocity, spot_velocity])
 
-    np.savetxt('outputData.csv', np.array(data_to_save), delimiter=',')
-    
+    # np.savetxt('outputData.csv', np.array(data_to_save), delimiter=',')
+    data_to_save = [x_log, distance_to_spot_log, time_log_angle, time_log_filter, spot_v_log, time_log_spot]
+    pickle.dump(data_to_save, open(OUTPUTFILENAME,'wb'))
 
     ax[0].clear()
     ax[1].clear()
