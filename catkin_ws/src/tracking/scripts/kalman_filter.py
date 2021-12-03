@@ -106,6 +106,18 @@ if __name__ == '__main__':
                 spot_v_log.append(dpos/dt)
                 time_log_spot.append(data[i,0])
 
+
+            #Person 6
+            # if i == 3022 - start_value:
+            #     KF.x = np.array([77, -98.44,0,-1.3,0,0])
+            #     KF.distanceTreshold = 1.2      
+            
+            # if i == 3384 - start_value:
+            #     KF.x = np.array([41.5,-56.5,0,-0.1,0,0])
+            #     KF.distanceTreshold = 1.3
+            #     KF.P = np.ones((6,6),np.float32)*0.1 + np.eye(6)*0.9
+                
+            
             #  Person 4 
 
             # if i == 900-start_value:
