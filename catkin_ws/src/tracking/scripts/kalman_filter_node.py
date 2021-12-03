@@ -17,6 +17,7 @@ class kalmanFilterNode:
         self.tfBuffer = tf2_ros.Buffer()
         self.tfListener = tf2_ros.TransformListener(self.tfBuffer)
         self.distance_to_robot_pub = rospy.Publisher('/distance_to_robot', Float32, queue_size=10)
+        self.velocity_pub = rospy.Publisher('/human_velocity', Float32, queue_size=10)
         self.detection_sub = rospy.Subscriber('/people_detections', QuaternionStamped, self.detection_callback, queue_size=10)
         self.marker_pub = rospy.Publisher('kalman_filter_visualization_markers', Marker, queue_size=10)
         self.kalmanFilter = None
@@ -31,6 +32,7 @@ class kalmanFilterNode:
             try:
                 self.trans = self.tfBuffer.lookup_transform('base_link', 'odom', rospy.Time.now())
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                print("could not look up transform")
                 return
             transformation_matrix = msg_to_se3(self.trans)
             # initialize the filter 2 meter behind the robot
@@ -81,7 +83,7 @@ class kalmanFilterNode:
 
 
     def pub_KF_pred_x_pos(self):
-        marker = self.get_marker([255,0,0], self.kalmanFilter.x_pred[:2],0)
+        marker = self.get_marker([0,255,0], self.kalmanFilter.x_pred[:2],1)
         self.marker_pub.publish(marker)    
 
 
