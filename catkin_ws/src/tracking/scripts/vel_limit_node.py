@@ -1,75 +1,84 @@
 #! /usr/bin/python3.6 
 
 import rospy as rospy
+from nav_msgs.msg import Odometry
 from std_msgs.msg import Float32
+import numpy as np
+import message_filters
 
+Max_speed = 1.4
+spot_velocity = 0
+person_velocity = 0
+person_distance = 0
 
-MIN_DIST = 0.45
-MAX_DIST = 1.20
+#Proportional controller gain
+PosConstGain = 2
+Kp1 = 1
+Kp2 = 0.5
 
-spring_Pgain = 5.0
-spring_Igain = 1.0
+#Cost function controller gains
+CostPosGain = 1
+CostVelGain = 1
 
-spring_val = 0
-iError = 0
-
-MAX_SPEED = 1.6
-MIN_SPEED = 0.8
-
-
-MAX_DENSITY = 10.0
-MIN_DENSITY = 0.5
-
-SPOT_SPEED = 0
-
+update_freq = 10
 
 pub = rospy.Publisher('vel_limit', Float32, queue_size=5)
 
+def getIdealDistance(velocity):
+    #di = 0.593*velocity**2 - 0.405*velocity + 1.78
+    a = 0.65
+    b = 1.42
+    di = a*velocity + b
+    return di
 
+def PController(pos, vel):
+    global spot_velocity, PosConstGain, Kp1, Kp2
 
-def DistCallBack(msg):
+    idealPos = getIdealDistance(vel)
+
+    velChange = 1.0/update_freq*((idealPos-pos)*Kp1+(vel-spot_velocity )*Kp2 + PosConstGain)
+    vel_limit = spot_velocity + velChange
+    #posChange = (idealPos-pos)*PosPGain
+    #vel_limit = spot_velocity + posChange
+    return vel_limit
+
+def CostFuncController(pos,vel):
+    global spot_velocity, CostPosGain, CostVelGain
+    gradient = [ 0.269531186697266*vel - 0.0952452172863454*pos - 0.154084299810647 , -0.0952452172863454*vel + 0.130468813302734*pos - 0.172481857335664 ]
+    velChange =  1.0/update_freq*(gradient[0]*CostVelGain + gradient[1]*CostPosGain)
+    vel_limit = spot_velocity + velChange 
+    return vel_limit
+
+def Human_vel_Callback(human_vel_msg):
+    global person_velocity
+    person_velocity = float(human_vel_msg.data)    
+
+def Spot_vel_callback(msg):
+    global spot_velocity
+    spot_velocity = np.linalg.norm([msg.twist.twist.linear.x, msg.twist.twist.linear.y])
     
-    global spring_val, iError
-    
-    if( MIN_DIST > msg.data):
-        error = msg.data - MIN_DIST
-        iError = error + iError
-        spring_val = error * spring_Pgain + spring_Igain * iError
-
-    elif( msg.data > MAX_DIST):
-        error = msg.data - MAX_DIST
-        iError = error + iError
-        spring_val = error * spring_Pgain + spring_Igain * iError
-
-    else:
-        iError = 0
-    
-
-def DensityCalĺback(msg):
-    global SPOT_SPEED
-
-    if(msg.data > MAX_DENSITY):
-        SPOT_SPEED = MIN_SPEED + spring_val
-
-    elif(MIN_DENSITY > msg.data):
-        SPOT_SPEED = MAX_SPEED + spring_val
-
-    else:
-        SPOT_SPEED = (MIN_SPEED-MAX_SPEED)/(MAX_DENSITY-MIN_DENSITY)*msg.data + spring_val
-    
-
+def DistCallBack(dist_msg):
+    global person_distance
+    person_distance = float(dist_msg.data)
 
 def do_stuff():
-    
-    rospy.init_node('vel_limit_node', anonymous=True)
+    rospy.init_node('vel_limit_node')
+    rospy.Subscriber("spot/odometry", Odometry, Spot_vel_callback)
+    rospy.Subscriber("distance_to_robot", Float32)
+    rospy.Subscriber("human_velocity", Float32)
 
-    rospy.Subscriber("distance_to_robot", Float32, DistCallback, queue_size=5)
+    controller_type = rospy.get_param('controller', 'cost')
+    if controller_type != 'cost' and controller_type != 'pid':
+        rospy.logerr("Valid types: cost, pid")
+        return
 
-    rospy.Subscriber("density", Float32, DensityCallback, queue_size=5)
-
-    pub.Publisher(Float32(SPOT_SPEED))  
-
-    rospy.spin()
+    rate = rospy.Rate(update_freq)
+    while not rospy.is_shutdown():
+        if controller_type[0] == 'p':
+            pub.publish(PController(person_distance, person_velocity))
+        else:
+            pub.publish(CostFuncController(person_distance, person_distance))
+        rate.sleep()
 
 
 
