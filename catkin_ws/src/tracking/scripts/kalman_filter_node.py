@@ -2,6 +2,7 @@ import rospy
 import tf2_ros
 
 import numpy as np
+import math
 
 from std_msgs.msg import Float32
 from geometry_msgs.msg import QuaternionStamped
@@ -17,12 +18,13 @@ class kalmanFilterNode:
         self.tfBuffer = tf2_ros.Buffer()
         self.tfListener = tf2_ros.TransformListener(self.tfBuffer)
         self.distance_to_robot_pub = rospy.Publisher('/distance_to_robot', Float32, queue_size=10)
-        self.velocity_pub = rospy.Publisher('/human_velocity', Float32, queue_size=10)
+        self.human_velocity_pub = rospy.Publisher('/human_velocity', Float32, queue_size=10)
         self.detection_sub = rospy.Subscriber('/people_detections', QuaternionStamped, self.detection_callback, queue_size=10)
         self.marker_pub = rospy.Publisher('kalman_filter_visualization_markers', Marker, queue_size=10)
         self.kalmanFilter = None
         self.lastGoodDetectionTime = rospy.Time.now()
         self.TIMEOUTLIMIT = 10
+        
         
 
     def detection_callback(self, msg):
@@ -48,6 +50,8 @@ class kalmanFilterNode:
             distance_to_robot_msg.data = dist
             self.distance_to_robot_pub.publish(distance_to_robot_msg)
             self.pub_KF_x_pos()
+            velocity_of_human = math.sqrt(self.kalmanFilter.x[3]**2+self.kalmanFilter.x[4]**2)
+            self.human_velocity_pub(velocity_of_human)
 
         self.pub_KF_pred_x_pos()
     
