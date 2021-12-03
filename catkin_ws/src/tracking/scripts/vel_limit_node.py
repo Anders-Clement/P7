@@ -5,6 +5,7 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Float32
 import numpy as np
 import message_filters
+import matplotlib.pyplot as plt
 
 Max_speed = 1.4
 spot_velocity = 0
@@ -73,16 +74,34 @@ def do_stuff():
     rospy.Subscriber("human_velocity", Float32)
 
     controller_type = rospy.get_param('controller', 'cost')
+    gui_type = rospy.get_param('controller', 'plot')
+
+    ax = None
+    last_list = [0 for _ in range(50)]
+    x_axis = [x/update_freq for x in range(50)]
+    if gui_type == "plot":
+        ax = plt.subplots(1)
+
+
     if controller_type != 'cost' and controller_type != 'pid':
         rospy.logerr("Valid types: cost, pid")
         return
 
     rate = rospy.Rate(update_freq)
     while not rospy.is_shutdown():
+        vel_limit = 0.0
         if controller_type[0] == 'p':
-            pub.publish(PController(person_distance, person_velocity))
+            vel_limit = PController(person_distance, person_velocity)
         else:
-            pub.publish(CostFuncController(person_distance, person_distance))
+            vel_limit = CostFuncController(person_distance, person_distance)
+
+        pub.publish(vel_limit)
+
+        if ax != None:
+            last_list.pop(0)
+            last_list.insert(-1, vel_limit)
+            ax.plot(x_axis, last_list)
+
         rate.sleep()
 
 
