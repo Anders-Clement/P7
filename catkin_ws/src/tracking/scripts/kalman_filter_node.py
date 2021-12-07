@@ -6,6 +6,7 @@ import tf2_ros
 import numpy as np
 import math
 
+from nav_msgs.msg import Odometry
 from std_msgs.msg import Float32
 from geometry_msgs.msg import QuaternionStamped
 from visualization_msgs.msg import Marker
@@ -23,11 +24,21 @@ class kalmanFilterNode:
         self.human_velocity_pub = rospy.Publisher('/human_velocity', Float32, queue_size=10)
         self.detection_sub = rospy.Subscriber('/people_detections', QuaternionStamped, self.detection_callback, queue_size=10)
         self.marker_pub = rospy.Publisher('kalman_filter_visualization_markers', Marker, queue_size=10)
+        self.spot_vel_sub = rospy.Subscriber('/spot/cmd_vel', Odometry, self.Spot_vel_callback, queue_size=10)
         self.kalmanFilter = None
         self.lastGoodDetectionTime = rospy.Time.now().to_sec()
         self.TIMEOUTLIMIT = 10
+        self.spot_velocity = 0
         
-        
+    def Spot_vel_callback(self, msg):
+        self.spot_velocity = np.linalg.norm(msg.twist.twist.linear.x, msg.twist.twist.linear.y)
+    
+    def getIdealDistance(self, velocity):
+        #di = 0.593*velocity**2 - 0.405*velocity + 1.78
+        a = 0.73
+        b = 1.32
+        di = a*velocity + b
+        return di
 
     def detection_callback(self, msg):
         try:
@@ -36,11 +47,14 @@ class kalmanFilterNode:
             transformation_matrix_body_odom = np.linalg.inv(transformation_matrix_odom_body)
             # initialize kalman filter if not done yet, of if KF is lost
             if self.kalmanFilter is None or rospy.Time.now().to_sec() - self.lastGoodDetectionTime > self.TIMEOUTLIMIT:
-                # initialize the filter 2 meter behind the robot
-                startPos = np.array([-2,0,0,1])
+                # initialize the filter at ideal distance behind spot given spot volocity
+                spot_velocity_now = self.spot_velocity
+                IdealDis = -self.getIdealDistance(spot_velocity_now)
+
+                startPos = np.array([IdealDis,0,0,1])
                 transformedPos = np.matmul(transformation_matrix_body_odom, startPos)
                 self.kalmanFilter = kalmanFilter(rospy.Time.now().to_sec())
-                self.kalmanFilter.x = np.array([transformedPos[0],transformedPos[1],0,0,0,0])
+                self.kalmanFilter.x = np.array([transformedPos[0],transformedPos[1],0,spot_velocity_now,0,0])
                 print('init KF, x_y: ', self.kalmanFilter.x[:2])         
 
             detectionPos = np.matmul(transformation_matrix_body_odom, [msg.quaternion.x, msg.quaternion.y, 0, 1])
@@ -57,7 +71,7 @@ class kalmanFilterNode:
                 self.distance_to_robot_pub.publish(distance_to_robot_msg)
                 print('good detection, KF.x: ', self.kalmanFilter.x, detectionPos, spotPos, dist)
                 velocity_of_human = math.sqrt(self.kalmanFilter.x[3]**2+self.kalmanFilter.x[4]**2)
-                self.human_velocity_pub(velocity_of_human)
+                self.human_velocity_pub.publish(velocity_of_human)
 
 
             self.pub_KF_x_pos() 
@@ -67,7 +81,6 @@ class kalmanFilterNode:
             print('failed transform kalman filter')
             return
  
-
     
 
     def get_marker(self, color, xyPos, id):
@@ -79,7 +92,7 @@ class kalmanFilterNode:
         marker.action = 0
         marker.pose.position.x = xyPos[0]
         marker.pose.position.y = xyPos[1]
-        marker.pose.position.z = self.trans.transform.translation.z
+        marker.pose.position.z = -self.trans.transform.translation.z
         marker.pose.orientation.x = 0
         marker.pose.orientation.y = 0
         marker.pose.orientation.z = 0
@@ -106,7 +119,7 @@ class kalmanFilterNode:
     def pub_KF_pred_x_pos(self):
         if self.kalmanFilter is not None:
             pred_pos = self.kalmanFilter.x_pred[:2]
-            marker = self.get_marker([0,255,0], pred_pos,1)
+            marker = self.get_marker([0,0,255], pred_pos,1)
             self.marker_pub.publish(marker)    
 
 
