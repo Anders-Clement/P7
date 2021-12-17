@@ -1,0 +1,5 @@
+<launch>
+    <arg name="joy_dev"    default="$(optenv SPOT_JOY_DEVICE /dev/input/js0)" />
+    <node pkg="joy" type="joy_node" name="joy_node" />
+    <node pkg="jetson_inference" type="ros_inference_node.py" name="ros_inference_node" output="screen" />
+</launch>

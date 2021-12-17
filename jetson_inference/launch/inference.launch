@@ -1,0 +1,6 @@
+
+  
+<launch>
+    <node name="jeson_node" pkg="jetson_inference" type="ros_inference_node.py"/>
+    
+</launch>

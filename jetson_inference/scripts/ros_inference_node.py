@@ -21,6 +21,8 @@ from transtonumpy import msg_to_se3
 
 from numba import njit
 
+import time
+
 labels = {1: "person", 2: "bicycle", 3: "car", 4: "motorcycle", 5: "airplane", 6: "bus", 7: "train", 8: "truck", 9: "boat", 10: "traffic light", 11: "fire hydrant", 13: "stop sign", 14: "parking meter", 15: "bench", 16: "bird", 17: "cat", 18: "dog", 19: "horse", 20: "sheep", 21: "cow", 22: "elephant", 23: "bear", 24: "zebra", 25: "giraffe", 27: "backpack", 28: "umbrella", 31: "handbag", 32: "tie", 33: "suitcase", 34: "frisbee", 35: "skis", 36: "snowboard", 37: "sports ball", 38: "kite", 39: "baseball bat", 40: "baseball glove", 41: "skateboard", 42: "surfboard", 43: "tennis racket",
 		  44: "bottle", 46: "wine glass", 47: "cup", 48: "fork", 49: "knife", 50: "spoon", 51: "bowl", 52: "banana", 53: "apple", 54: "sandwich", 55: "orange", 56: "broccoli", 57: "carrot", 58: "hot dog", 59: "pizza", 60: "donut", 61: "cake", 62: "chair", 63: "couch", 64: "potted plant", 65: "bed", 67: "dining table", 70: "toilet", 72: "tv", 73: "laptop", 74: "mouse", 75: "remote", 76: "keyboard", 77: "cell phone", 78: "microwave", 79: "oven", 80: "toaster", 81: "sink", 82: "refrigerator", 84: "book", 85: "clock", 86: "vase", 87: "scissors", 88: "teddy bear", 89: "hair drier", 90: "toothbrush"}
 frame_id_rot = {"frontleft_fisheye": cv2.ROTATE_90_CLOCKWISE, 
@@ -183,9 +185,11 @@ def main():
 			topic, CameraInfo, camera_info_sub, (i), queue_size=1)
 
 	rate = rospy.Rate(1000.0)
+	time_list = np.zeros(50)
+	index = 0
 	while not rospy.is_shutdown():
-
 		for camera_num in range(0, 5):
+			time_start = time.time()
 			if rospy.is_shutdown():
 				break
 
@@ -216,12 +220,14 @@ def main():
 				rospy.logerr(
 					"Depth and Image timestamps out of alignement")
 				continue
-
+			
 			# retrieve images from msgs
 			im_orginal = np.frombuffer(img_msg.data, dtype=np.uint8).reshape(
 				img_msg.height, img_msg.width, -1)
 			depth_original = np.frombuffer(depth_msg.data, dtype=np.uint16).reshape(
 				depth_msg.height, depth_msg.width, -1)
+
+			
 
 			camera_info_greyscale = camera_info_msg[camera_info_index]
 			camera_info_depth = camera_info_msg[camera_info_index + 1]
@@ -258,7 +264,7 @@ def main():
 						height = int(det.Bottom - det.Top)
 						height_box = [int(det.Top), int(det.Bottom - height*0.5)]
 						width_box =  [int(det.Left + width*0.25), int(det.Right) - int(width*0.25)]
-						#cv2.rectangle(im_color, (int(det.Left), int(det.Top)), (int(det.Right), int(det.Bottom)), (0, 255, 0), thickness=2)
+						# cv2.rectangle(im_color, (int(det.Left), int(det.Top)), (int(det.Right), int(det.Bottom)), (0, 255, 0), thickness=2)
 
 					elif frame_id_rot[img_msg.header.frame_id] == cv2.ROTATE_90_CLOCKWISE:
 						height = int((camera_info_greyscale.height - det.Left) - (camera_info_greyscale.height - det.Right))
@@ -266,16 +272,16 @@ def main():
 						height_box = [camera_info_greyscale.height - int(det.Right) + int(height*0.25),
 									 camera_info_greyscale.height - int(det.Left) - int(height*0.25)]
 						width_box = [int(det.Top), int(det.Bottom) - int(width/2)]
-						#cv2.rectangle(im_color, (int(det.Top), camera_info_greyscale.height - int(det.Right)),(int(det.Bottom) , camera_info_greyscale.height - int(det.Left)), (0, 255, 0), thickness=2)
+						# cv2.rectangle(im_color, (int(det.Top), camera_info_greyscale.height - int(det.Right)),(int(det.Bottom) , camera_info_greyscale.height - int(det.Left)), (0, 255, 0), thickness=2)
 
 					elif frame_id_rot[img_msg.header.frame_id] == cv2.ROTATE_180:
 						height = int(det.Bottom) - int(det.Top)
 						width = int(det.Right - det.Left)
 						height_box = [camera_info_greyscale.height - int(det.Bottom) + int(height*0.5), camera_info_greyscale.height - int(det.Top)]
 						width_box = [camera_info_greyscale.width - int(det.Right) + int(width*0.25), camera_info_greyscale.width - int(det.Left) - int(width*0.25)]
-						#cv2.rectangle(im_color, (camera_info_greyscale.width - int(det.Right), camera_info_greyscale.height - int(det.Bottom)), (camera_info_greyscale.width - int(det.Left) , camera_info_greyscale.height - int(det.Top)), (0, 255, 0), thickness=2)
+						# cv2.rectangle(im_color, (camera_info_greyscale.width - int(det.Right), camera_info_greyscale.height - int(det.Bottom)), (camera_info_greyscale.width - int(det.Left) , camera_info_greyscale.height - int(det.Top)), (0, 255, 0), thickness=2)
 					
-					#cv2.rectangle(im_color, (width_box[0], height_box[0]), (width_box[1], height_box[1]), (0, 0, 255), thickness=2)
+					# cv2.rectangle(im_color, (width_box[0], height_box[0]), (width_box[1], height_box[1]), (0, 0, 255), thickness=2)
 
 					
 					# cut out corresponding depth image
@@ -326,6 +332,7 @@ def main():
 					# ax.set_zlabel('z')
 					# ax.scatter3D(deprojected_points[0], deprojected_points[1], deprojected_points[2])
 					# ax.scatter3D(detection_pos2[0], detection_pos2[1], detection_pos2[2])
+					# plt.imshow(#im_color)
 					# plt.show()
 
 					# convert to meters from millimeters
@@ -353,6 +360,19 @@ def main():
 					detection_msg.header = depth_msg.header
 					detection_msg.header.frame_id = targetFrame
 					detection_pub.publish(detection_msg)
+			
+			#print("Hz: ", camera_num, ": ", 1 / (end_time - time_start) )
+
+
+			end_time = time.time()
+
+			time_list[index] = 1 / (end_time - time_start)
+			index += 1
+
+			if index == 50:
+				index = 0
+				print("std: ", np.std(time_list), " mean: ", np.mean(time_list), " max: ", max(time_list), " min: ", min(time_list))
+
 					
 
 			
