@@ -6,6 +6,10 @@ from std_msgs.msg import Float32
 import math 
 
 
+latest_msg = None
+max_velocity = 2 # spot have max 1.6
+pub = None
+
 def raw_callback(data):
     global max_velocity, pub, latest_msg
     
@@ -35,11 +39,11 @@ def raw_callback(data):
 def limit_callback(data):
     global max_velocity, latest_msg
     max_velocity = data.data
+    if latest_msg is None:
+        return
+    #raw_callback(latest_msg)
 
-    raw_callback(latest_msg)
 
-
-max_velocity = 2 # spot have max 1.6
 
 if __name__ == '__main__':
     

@@ -5,7 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /TF1/Status1
         - /TF1/Frames1
+        - /Marker2
       Splitter Ratio: 0.5
     Tree Height: 764
   - Class: rviz/Selection
@@ -26,7 +28,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: frontLeft
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -61,15 +63,15 @@ Visualization Manager:
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /visualization_markers/world_evidence
       Name: detections
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Image
-      Enabled: true
+      Enabled: false
       Image Topic: /spot/camera/frontleft/image
       Max Value: 1
       Median window: 5
@@ -79,9 +81,9 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/Image
-      Enabled: true
+      Enabled: false
       Image Topic: /spot/camera/right/image
       Max Value: 1
       Median window: 5
@@ -91,82 +93,82 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /robotMarker
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: false
+        All Enabled: true
         back:
-          Value: false
+          Value: true
         back_fisheye:
-          Value: false
+          Value: true
         base_link:
           Value: true
         body:
-          Value: false
+          Value: true
         flat_body:
-          Value: false
+          Value: true
         front_left_hip:
-          Value: false
+          Value: true
         front_left_lower_leg:
-          Value: false
+          Value: true
         front_left_upper_leg:
-          Value: false
+          Value: true
         front_rail:
-          Value: false
+          Value: true
         front_right_hip:
-          Value: false
+          Value: true
         front_right_lower_leg:
-          Value: false
+          Value: true
         front_right_upper_leg:
-          Value: false
+          Value: true
         frontleft:
-          Value: false
+          Value: true
         frontleft_fisheye:
-          Value: false
+          Value: true
         frontright:
-          Value: false
+          Value: true
         frontright_fisheye:
-          Value: false
+          Value: true
         gpe:
-          Value: false
+          Value: true
         head:
-          Value: false
+          Value: true
         left:
-          Value: false
+          Value: true
         left_fisheye:
-          Value: false
+          Value: true
         odom:
-          Value: false
+          Value: true
         rear_left_hip:
-          Value: false
+          Value: true
         rear_left_lower_leg:
-          Value: false
+          Value: true
         rear_left_upper_leg:
-          Value: false
+          Value: true
         rear_rail:
-          Value: false
+          Value: true
         rear_right_hip:
-          Value: false
+          Value: true
         rear_right_lower_leg:
-          Value: false
+          Value: true
         rear_right_upper_leg:
-          Value: false
+          Value: true
         right:
-          Value: false
+          Value: true
         right_fisheye:
-          Value: false
+          Value: true
         vision:
-          Value: false
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
@@ -174,51 +176,7 @@ Visualization Manager:
       Show Names: true
       Tree:
         odom:
-          body:
-            base_link:
-              {}
-            flat_body:
-              {}
-            front_left_hip:
-              front_left_upper_leg:
-                front_left_lower_leg:
-                  {}
-            front_rail:
-              {}
-            front_right_hip:
-              front_right_upper_leg:
-                front_right_lower_leg:
-                  {}
-            head:
-              back:
-                back_fisheye:
-                  {}
-              frontleft:
-                frontleft_fisheye:
-                  {}
-              frontright:
-                frontright_fisheye:
-                  {}
-              left:
-                left_fisheye:
-                  {}
-              right:
-                right_fisheye:
-                  {}
-            rear_left_hip:
-              rear_left_upper_leg:
-                rear_left_lower_leg:
-                  {}
-            rear_rail:
-              {}
-            rear_right_hip:
-              rear_right_upper_leg:
-                rear_right_lower_leg:
-                  {}
-            vision:
-              {}
-          gpe:
-            {}
+          {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -233,7 +191,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: AxisColor
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
@@ -248,9 +206,9 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Class: rviz/Image
-      Enabled: true
+      Enabled: false
       Image Topic: /spot/camera/left/image
       Max Value: 1
       Median window: 5
@@ -260,9 +218,9 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/Image
-      Enabled: true
+      Enabled: false
       Image Topic: /spot/camera/back/image
       Max Value: 1
       Median window: 5
@@ -272,12 +230,20 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
+      Value: false
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /kalman_filter_visualization_markers
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: base_link
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
@@ -301,33 +267,33 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 6.1460161209106445
+      Distance: 174.0123291015625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.03140711039304733
-        Y: 0.1613398939371109
-        Z: 0.18345026671886444
+        X: -0.21045972406864166
+        Y: 0.2523582875728607
+        Z: -0.3243682384490967
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7147964835166931
-      Target Frame: <Fixed Frame>
+      Pitch: 1.3147962093353271
+      Target Frame: gpe
       Value: Orbit (rviz)
-      Yaw: 3.1485910415649414
+      Yaw: 2.4035873413085938
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
   Height: 1016
-  Hide Left Dock: false
+  Hide Left Dock: true
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000021000000358fc020000000ffb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d00610067006502000002b500000281000003c80000023afb0000000a0049006d00610067006501000004500000018a0000000000000000fb0000000c00430061006d006500720061000000043b0000019f0000000000000000fb0000001200660072006f006e0074004c006500660074010000003e000000b80000001600fffffffb0000001800630061006d006500720061005f0072006900670068007401000000fc000000b30000001600fffffffb0000000c00430061006d00650072006101000002cf000000c70000000000000000fb00000008006c00650066007401000001b5000000ce0000001600fffffffb00000008006200610063006b01000002890000010d0000001600ffffff000000010000015600000358fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fc0000003e00000358000000e80100001dfa000000000100000002fb000000100044006900730070006c0061007900730100000000ffffffff0000015600fffffffb0000000a0056006900650077007301000006710000010f0000010000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000002b900fffffffb0000000800540069006d006501000000000000045000000000000000000000040e0000035800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000002100000033dfc020000000ffb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d00610067006502000002b500000281000003c80000023afb0000000a0049006d00610067006501000004500000018a0000000000000000fb0000000c00430061006d006500720061000000043b0000019f0000000000000000fb0000001200660072006f006e0074004c006500660074000000003e000000b20000001600fffffffb0000001800630061006d006500720061005f0072006900670068007400000000f6000000ad0000001600fffffffb0000000c00430061006d00650072006101000002cf000000c70000000000000000fb00000008006c00650066007400000001a9000000c80000001600fffffffb00000008006200610063006b0000000277000001040000001600ffffff000000010000015600000358fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fc0000003e00000358000000e80100001dfa000000000100000002fb000000100044006900730070006c0061007900730100000000ffffffff0000015600fffffffb0000000a0056006900650077007301000006710000010f0000010000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000002b900fffffffb0000000800540069006d00650100000000000004500000000000000000000006240000035800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -340,10 +306,10 @@ Window Geometry:
   X: 0
   Y: 27
   back:
-    collapsed: false
+    collapsed: true
   camera_right:
-    collapsed: false
+    collapsed: true
   frontLeft:
-    collapsed: false
+    collapsed: true
   left:
-    collapsed: false
+    collapsed: true

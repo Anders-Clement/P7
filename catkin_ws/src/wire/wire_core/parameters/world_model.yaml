@@ -1,5 +1,5 @@
-world_model_frame: base_link
-output_frame: base_link
+world_model_frame: odom
+output_frame: odom
 
 evidence_topics:
  - /world_evidence

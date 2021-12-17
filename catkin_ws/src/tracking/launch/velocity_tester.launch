@@ -26,5 +26,5 @@
         <remap from="cmd_vel" to="spot/cmd_vel" />
     </node>
     <!-- /bluetooth_teleop/joy -->
-    <node pkg="spot_navigation" type="teleop.py" name="teleop" output="screen" />
+    <node pkg="spot_navigation" type="teleop.py" name="teleop" output="screen" /> 
 </launch>

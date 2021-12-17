@@ -65,6 +65,13 @@ bool Visualizer::createMarkers(const std_msgs::Header& header, long ID,
 			const pbl::Gaussian* gauss = getBestGaussian(*pdf);
 			if (gauss) {
 				const pbl::Vector& mean = gauss->getMean();
+				auto likelihood = gauss->getLikelihood(*pdf);
+				if (likelihood > 30)
+				{
+					delete pdf;
+					continue;
+				}	
+				
 
 				cov_xx = gauss->getCovariance()(0, 0);
 				cov_yy = gauss->getCovariance()(1, 1);

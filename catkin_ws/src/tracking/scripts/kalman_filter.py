@@ -257,7 +257,7 @@ if __name__ == '__main__':
 
     # np.savetxt('outputData.csv', np.array(data_to_save), delimiter=',')
     data_to_save = [x_log, distance_to_spot_log, time_log_angle, time_log_filter, spot_v_log, time_log_spot]
-    pickle.dump(data_to_save, open(OUTPUTFILENAME,'wb'))
+    #pickle.dump(data_to_save, open(OUTPUTFILENAME,'wb'))
 
     ax[0].clear()
     ax[1].clear()

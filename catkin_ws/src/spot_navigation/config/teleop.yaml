@@ -43,25 +43,25 @@
 #   Y              3
 #
 #    AXIS        Value
-# Left Horiz.      0
-# Left Vert.       1
-# Right Horiz.     3
-# Right Vert.      4
-#    L2            2
+# Left Horiz.      1
+# Left Vert.       0
+# Right Horiz.     2
+# Right Vert.      5
+#    L2            4
 #    R2            5
-# D-pad Horiz.     9
-# D-pad Vert.      10
-# Accel x          7
-# Accel y          6
-# Accel z          8
+# D-pad Horiz.     7
+# D-pad Vert.      6
+# Accel x          ?
+# Accel y          ?
+# Accel z          ?
 
 teleop_twist_joy:
   axis_linear:
     x: 1
     y: 0
   scale_linear:
-    x: 1
-    y: 1
+    x: 10
+    y: 10
   scale_linear_turbo:
     x: 1.0 # TODO: should this be 1.0?
     y: 1.0 # TODO: should this be 1.0?

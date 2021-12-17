@@ -1,7 +1,8 @@
 <launch>
+    <include file="$(find tracking)/launch/velocity_tester.launch" />
+    <param name="controller" value="none" />
+    <param name="gui" value="None" />
     <node pkg="tracking" type="kalman_filter_node.py" name="kalman_filter_node" output="screen"/>
     <node pkg="tracking" type="vel_limit_node.py" name="vel_limit_node" output="screen">
-        <param name="controller" value="cost" />
-        <param name="gui" value="None" />
-    </node>   
+    </node>
 </launch>

@@ -14,8 +14,8 @@ class markerPub():
 
     def detection_callback(self, msg):
         robotMarker = Marker()
-        robotMarker.header.frame_id = msg.header.frame_id
-        robotMarker.header.stamp    = rospy.get_rostime()
+        robotMarker.header = msg.header
+        #robotMarker.header.stamp = rospy.get_rostime()
         robotMarker.ns = "robot" + str(self.robot_id)
         robotMarker.id = 0
         robotMarker.type = 2 # sphere
@@ -36,7 +36,7 @@ class markerPub():
         robotMarker.color.b = 0.0
         robotMarker.color.a = 1.0
 
-        robotMarker.lifetime = rospy.Duration(3)
+        robotMarker.lifetime = rospy.Duration(300000)
         self.markerPub.publish(robotMarker)
         self.robot_id += 1
 

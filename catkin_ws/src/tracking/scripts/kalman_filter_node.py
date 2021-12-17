@@ -24,14 +24,16 @@ class kalmanFilterNode:
         self.human_velocity_pub = rospy.Publisher('/human_velocity', Float32, queue_size=10)
         self.detection_sub = rospy.Subscriber('/people_detections', QuaternionStamped, self.detection_callback, queue_size=10)
         self.marker_pub = rospy.Publisher('kalman_filter_visualization_markers', Marker, queue_size=10)
-        self.spot_vel_sub = rospy.Subscriber('/spot/cmd_vel', Odometry, self.Spot_vel_callback, queue_size=10)
+        self.spot_vel_sub = rospy.Subscriber('/spot/odometry', Odometry, self.Spot_vel_callback, queue_size=10)
+        self.good_detection_pub = rospy.Publisher('/good_detections', QuaternionStamped, queue_size=10)
         self.kalmanFilter = None
         self.lastGoodDetectionTime = rospy.Time.now().to_sec()
-        self.TIMEOUTLIMIT = 10
+        self.TIMEOUTLIMIT = 3
         self.spot_velocity = 0
+        self.marker_num = 0
         
     def Spot_vel_callback(self, msg):
-        self.spot_velocity = np.linalg.norm(msg.twist.twist.linear.x, msg.twist.twist.linear.y)
+        self.spot_velocity = np.linalg.norm([msg.twist.twist.linear.x, msg.twist.twist.linear.y])
     
     def getIdealDistance(self, velocity):
         #di = 0.593*velocity**2 - 0.405*velocity + 1.78
@@ -64,14 +66,21 @@ class kalmanFilterNode:
                 self.lastGoodDetectionTime = rospy.Time.now().to_sec()
                 # find distance to robot and publish it
                 # SPOTPOS IS WRONG
-                spotPos = np.array([self.trans.transform.translation.x, self.trans.transform.translation.y])
+                spotPos = transformation_matrix_body_odom[:2, 3] 
                 dist = np.linalg.norm(np.array(spotPos - self.kalmanFilter.x[:2]))
                 distance_to_robot_msg = Float32()
                 distance_to_robot_msg.data = dist
                 self.distance_to_robot_pub.publish(distance_to_robot_msg)
-                print('good detection, KF.x: ', self.kalmanFilter.x, detectionPos, spotPos, dist)
+                #print('good detection, KF.x: ', self.kalmanFilter.x, detectionPos, spotPos, dist)
                 velocity_of_human = math.sqrt(self.kalmanFilter.x[3]**2+self.kalmanFilter.x[4]**2)
-                self.human_velocity_pub.publish(velocity_of_human)
+                kfVel = np.array([self.kalmanFilter.x[3], self.kalmanFilter.x[4], 0])  
+                kfVelRelToSpot = np.matmul(transformation_matrix_odom_body[:3,:3], kfVel)
+                if kfVelRelToSpot[0] < 0:
+                    velocity_of_human *= -1 
+
+                vel_msg = Float32(velocity_of_human)
+                self.human_velocity_pub.publish(vel_msg)
+                self.good_detection_pub.publish(msg)
 
 
             self.pub_KF_x_pos() 
@@ -112,7 +121,8 @@ class kalmanFilterNode:
     def pub_KF_x_pos(self):
         if self.kalmanFilter is not None:
             x_pos = self.kalmanFilter.x[:2]
-            marker = self.get_marker([255,0,0], x_pos,0)
+            marker = self.get_marker([255,0,0], x_pos, self.marker_num)
+            self.marker_num += 1
             self.marker_pub.publish(marker)
 
 
